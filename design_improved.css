@@ -1160,6 +1160,52 @@ body.dark-mode .status-item-mini.is-active .status-icon {
     text-align: center;
 }
 
+/* --- 13ד1. אבחון הגדרות במסך ההתחברות ---
+   אומר בדיוק באיזה שלב ההגדרה נתקעה (פונקציה לא פרוסה / חסר משתנה
+   סביבה / אין רשת), במקום להשאיר את המשתמש לנחש */
+.admin-diag-link {
+    display: block;
+    margin: 4px auto 0;
+    padding: 4px 8px;
+    border: none;
+    background: none;
+    color: var(--gold);
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.admin-diag {
+    display: none;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    background: var(--surface-2);
+    font-size: 0.78rem;
+    line-height: 1.45;
+}
+.admin-diag.is-open { display: block; }
+.admin-diag-line {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    font-weight: 700;
+    color: var(--text);
+}
+.admin-diag-line .material-symbols-outlined { font-size: 17px; flex-shrink: 0; }
+.admin-diag-ok  .material-symbols-outlined { color: var(--green); }
+.admin-diag-bad .material-symbols-outlined { color: var(--red); }
+.admin-diag-hint {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
+    color: var(--text-muted);
+    font-weight: 400;
+}
+.admin-diag-hint strong { color: var(--text); font-weight: 800; }
+
 /* --- 13ד2. שורת מצב (מאיפה התוכן שמוצג, ומתי עודכן) ---
    זה מה שמונע את הבלבול "ערכתי ולא רואים את זה על הטלוויזיה" */
 .admin-banner {

@@ -254,6 +254,12 @@ window.AdminStore = (function () {
         });
     }
 
+    // מחזירה תמיד תוצאה מובנית ולא זורקת על שגיאת HTTP, כדי שהפאנל
+    // יוכל להבדיל בין המצבים ולהגיד לאדמין מה *באמת* חסר:
+    //   wrongPassword → הפונקציה עובדת והסיסמה שגויה
+    //   notDeployed   → 404: הפונקציה לא קיימת באתר (deploy לא כלל אותה)
+    //   serverError   → הפונקציה רצה אבל חסרות לה הגדרות (למשל ADMIN_PASSWORD)
+    //   networkError  → אין בכלל תשובה (אין רשת / פתיחה מקומית מהמחשב)
     function verifyPassword(password) {
         if (!apiConfigured()) {
             return Promise.resolve({ ok: false, localOnly: true });
@@ -265,9 +271,53 @@ window.AdminStore = (function () {
         }).then(function (res) {
             return res.json().catch(function () { return {}; }).then(function (data) {
                 if (res.status === 401) return { ok: false, wrongPassword: true };
-                if (!res.ok) throw new Error(data.error || ("HTTP " + res.status));
+                if (res.status === 404) return { ok: false, notDeployed: true, status: 404 };
+                if (!res.ok) {
+                    return {
+                        ok: false,
+                        serverError: data.error || ("השרת החזיר שגיאה " + res.status),
+                        status: res.status
+                    };
+                }
                 return { ok: true, canPublish: data.canPublish !== false, repo: data.repo, branch: data.branch };
             });
+        }).catch(function (err) {
+            return { ok: false, networkError: err.message || "אין תשובה מהשרת" };
+        });
+    }
+
+    // אבחון הגדרה: שולח סיסמה ריקה בכוונה. התשובה מזהה את המצב במדויק -
+    //   401 → הפונקציה פרוסה ו-ADMIN_PASSWORD מוגדר   (הכל תקין)
+    //   500 → הפונקציה פרוסה אבל חסר ADMIN_PASSWORD
+    //   404 → הפונקציה לא פרוסה בכלל
+    //   אין תשובה → אין רשת / האתר לא מוגש מ-Netlify
+    function diagnose() {
+        if (!apiConfigured()) {
+            return Promise.resolve({ state: "no-api", message: "ADMIN_API ריק ב-admin_config.js - מצב מקומי בכוונה." });
+        }
+        return verifyPassword("").then(function (r) {
+            if (r.wrongPassword) {
+                return { state: "ready", message: "הפונקציה פרוסה ו-ADMIN_PASSWORD מוגדר. אפשר להתחבר." };
+            }
+            if (r.notDeployed) {
+                return {
+                    state: "not-deployed",
+                    message: "הפונקציה לא נמצאה (404). ה-deploy לא כלל את netlify/functions - " +
+                        "בדקו ב-Netlify תחת Deploys → Functions."
+                };
+            }
+            if (r.serverError) {
+                return { state: "misconfigured", message: "הפונקציה רצה אבל: " + r.serverError };
+            }
+            if (r.networkError) {
+                return {
+                    state: "offline",
+                    message: "אין תשובה מהשרת (" + r.networkError + "). " +
+                        "אם פתחתם את הקבצים מהמחשב - זה מצופה; מצב ניהול מלא עובד רק מהאתר ב-Netlify."
+                };
+            }
+            // סיסמה ריקה התקבלה - כלומר ADMIN_PASSWORD ריק
+            return { state: "misconfigured", message: "ADMIN_PASSWORD מוגדר כמחרוזת ריקה - קבעו סיסמה אמיתית ב-Netlify." };
         });
     }
 
@@ -401,6 +451,7 @@ window.AdminStore = (function () {
         startPolling: startPolling,
 
         verifyPassword: verifyPassword,
+        diagnose: diagnose,
         publish: publish,
         saveLocal: saveLocal,
 

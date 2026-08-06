@@ -241,30 +241,83 @@
             setBusy(true);
             AdminStore.verifyPassword(password).then(function (result) {
                 setBusy(false);
+
                 if (result.ok) {
                     localMode = false;
                     login(password, false);
                     renderEditor();
                     if (result.canPublish === false) {
-                        toast("הפונקציה עובדת אבל חסרות הגדרות GitHub - ראו ADMIN_SETUP.md", "error");
+                        toast("הסיסמה נכונה אבל חסרים GITHUB_TOKEN / GITHUB_REPO ב-Netlify - " +
+                              "הפרסום לא יעבוד. ראו ADMIN_SETUP.md", "error");
                     }
-                } else {
+                    return;
+                }
+
+                if (result.wrongPassword) {
                     error.textContent = "סיסמה שגויה - נסו שוב";
                     input.value = "";
                     input.focus();
+                    return;
                 }
-            }).catch(function () {
-                setBusy(false);
-                // הפונקציה לא זמינה (הרצה מקומית, אין רשת, לא פורסמה עדיין).
-                // נותנים מסלול חלופי במקום להשאיר את האדמין תקוע.
+
+                // הפונקציה רצה אבל חסרות לה הגדרות - זו הסיבה האמיתית,
+                // ואסור להציג אותה כ"אין חיבור"
+                if (result.serverError) {
+                    error.textContent = result.serverError;
+                    showDiagnostics();
+                    input.focus();
+                    return;
+                }
+
+                if (result.notDeployed) {
+                    error.textContent = "פונקציית הניהול לא נמצאה באתר (404).";
+                    showDiagnostics();
+                    return;
+                }
+
+                // אין תשובה בכלל - מציעים מצב מקומי כדי לא להשאיר את האדמין תקוע
                 if (password === LOCAL_PASSWORD) {
                     localMode = true;
                     login(password, true);
                     renderEditor();
-                    toast("אין חיבור לשרת - נכנסת במצב מקומי", "error");
+                    toast("אין תשובה מהשרת - נכנסת במצב מקומי", "error");
                 } else {
-                    error.textContent = "אין חיבור לשרת הניהול. בדקו אינטרנט ונסו שוב.";
+                    error.textContent = "אין תשובה משרת הניהול.";
+                    showDiagnostics();
                     input.focus();
+                }
+            });
+        }
+
+        // כפתור אבחון: אומר בדיוק באיזה שלב ההגדרה נתקעה, במקום
+        // להשאיר את המשתמש לנחש בין "אין רשת" ל"חסר משתנה סביבה"
+        var diagBox = el("div", "admin-diag");
+
+        function showDiagnostics() {
+            diagBox.innerHTML = "";
+            diagBox.classList.add("is-open");
+            diagBox.appendChild(el("span", "admin-diag-line", "בודק את ההגדרות..."));
+
+            AdminStore.diagnose().then(function (d) {
+                diagBox.innerHTML = "";
+
+                var row = el("div", "admin-diag-line admin-diag-" +
+                    (d.state === "ready" ? "ok" : "bad"));
+                row.appendChild(iconSpan(d.state === "ready" ? "check_circle" : "error"));
+                row.appendChild(el("span", null, d.message));
+                diagBox.appendChild(row);
+
+                if (d.state === "misconfigured" || d.state === "not-deployed") {
+                    var hint = el("div", "admin-diag-hint");
+                    hint.appendChild(el("strong", null, "מה לעשות: "));
+                    hint.appendChild(document.createTextNode(
+                        d.state === "not-deployed"
+                            ? "ב-Netlify: Site configuration → Build & deploy → " +
+                              "לוודא שה-Functions directory הוא netlify/functions, ואז Deploys → Trigger deploy."
+                            : "ב-Netlify: Site configuration → Environment variables → להוסיף " +
+                              "ADMIN_PASSWORD, GITHUB_TOKEN, GITHUB_REPO, GITHUB_BRANCH, " +
+                              "ואז לעשות Trigger deploy (משתני סביבה נכנסים לתוקף רק ב-deploy הבא)."));
+                    diagBox.appendChild(hint);
                 }
             });
         }
@@ -275,6 +328,11 @@
 
         wrap.appendChild(input);
         wrap.appendChild(error);
+
+        var diagLink = button("admin-diag-link", "בדיקת חיבור והגדרות", showDiagnostics);
+        wrap.appendChild(diagLink);
+        wrap.appendChild(diagBox);
+
         bodyEl.appendChild(wrap);
 
         enterBtn = button("admin-btn admin-btn-primary", "כניסה", submit);
