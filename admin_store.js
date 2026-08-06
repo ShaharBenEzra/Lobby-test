@@ -158,8 +158,12 @@ window.AdminStore = (function () {
         return typeof ADMIN_API !== "undefined" && !!ADMIN_API;
     }
 
-    function contentUrls() {
-        return typeof CONTENT_URLS !== "undefined" ? CONTENT_URLS : null;
+    function contentApi() {
+        return typeof CONTENT_API !== "undefined" && CONTENT_API ? CONTENT_API : null;
+    }
+
+    function fallbackUrls() {
+        return typeof CONTENT_FALLBACK_URLS !== "undefined" ? CONTENT_FALLBACK_URLS : null;
     }
 
     // cache-buster + no-store: בלי זה ה-CDN או הדפדפן היו מגישים את
@@ -172,11 +176,30 @@ window.AdminStore = (function () {
         });
     }
 
-    // מחזירה Promise שמתקיים גם בכישלון - אין טעם להפיל את הדשבורד
-    // בגלל נפילת רשת רגעית, פשוט נשארים עם מה שכבר מוצג
-    function refresh() {
-        var urls = contentUrls();
-        if (!urls) return Promise.resolve(false);
+    // מקור ראשי: פונקציית content, שקוראת מ-Netlify Blobs. זה מה שמתעדכן
+    // מיד כשהוועד מפרסם. 204 = האחסון עוד ריק (לפני הפרסום הראשון).
+    function fetchFromApi() {
+        var api = contentApi();
+        if (!api) return Promise.reject(new Error("no api"));
+
+        var bust = api + (api.indexOf("?") === -1 ? "?" : "&") + "t=" + Date.now();
+        return fetch(bust, { cache: "no-store" }).then(function (res) {
+            if (res.status === 204) throw new Error("empty-store");
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            return res.json();
+        }).then(function (data) {
+            if (!Array.isArray(data.notices) || !Array.isArray(data.status)) {
+                throw new Error("מבנה לא צפוי מהשרת");
+            }
+            return data;
+        });
+    }
+
+    // גיבוי: הקבצים הסטטיים שבריפו. משמשים לפני הפרסום הראשון,
+    // ובהרצה מקומית שבה אין פונקציות בכלל.
+    function fetchFromFiles() {
+        var urls = fallbackUrls();
+        if (!urls) return Promise.reject(new Error("no fallback"));
 
         return Promise.all([fetchJson(urls.notices), fetchJson(urls.status)])
             .then(function (results) {
@@ -185,20 +208,38 @@ window.AdminStore = (function () {
                 if (!Array.isArray(notices) || !Array.isArray(status)) {
                     throw new Error("מבנה לא צפוי בקבצי התוכן");
                 }
+                return {
+                    notices: notices,
+                    status: status,
+                    updatedAt: results[0].updatedAt || results[1].updatedAt || null
+                };
+            });
+    }
 
-                var updatedAt = results[0].updatedAt || results[1].updatedAt || null;
-
+    // מחזירה Promise שמתקיים גם בכישלון - אין טעם להפיל את הדשבורד
+    // בגלל נפילת רשת רגעית, פשוט נשארים עם מה שכבר מוצג
+    function refresh() {
+        return fetchFromApi()
+            .catch(function (apiErr) {
+                // ה-API לא זמין או שהאחסון ריק - ננסה את הקבצים שבריפו
+                return fetchFromFiles().catch(function () {
+                    throw apiErr;
+                });
+            })
+            .then(function (data) {
                 // עריכה מקומית שלא פורסמה מנצחת - אחרת המשיכה הבאה הייתה
                 // דורסת לאדמין את מה שהוא בדיוק ערך בלי לפרסם
                 var local = readJson(KEYS.local);
 
-                writeJson(KEYS.cache, { notices: notices, status: status, updatedAt: updatedAt });
+                writeJson(KEYS.cache, {
+                    notices: data.notices, status: data.status, updatedAt: data.updatedAt
+                });
                 state.lastError = null;
 
                 if (local) {
                     apply(local.notices, local.status, local.updatedAt, "local");
                 } else {
-                    apply(notices, status, updatedAt, "remote");
+                    apply(data.notices, data.status, data.updatedAt, "remote");
                 }
                 return true;
             })

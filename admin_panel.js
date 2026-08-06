@@ -247,8 +247,8 @@
                     login(password, false);
                     renderEditor();
                     if (result.canPublish === false) {
-                        toast("הסיסמה נכונה אבל חסרים GITHUB_TOKEN / GITHUB_REPO ב-Netlify - " +
-                              "הפרסום לא יעבוד. ראו ADMIN_SETUP.md", "error");
+                        toast("הסיסמה נכונה אבל האחסון לא זמין - הפרסום לא יעבוד. " +
+                              "ראו ADMIN_SETUP.md", "error");
                     }
                     return;
                 }
@@ -314,9 +314,9 @@
                         d.state === "not-deployed"
                             ? "ב-Netlify: Site configuration → Build & deploy → " +
                               "לוודא שה-Functions directory הוא netlify/functions, ואז Deploys → Trigger deploy."
-                            : "ב-Netlify: Site configuration → Environment variables → להוסיף " +
-                              "ADMIN_PASSWORD, GITHUB_TOKEN, GITHUB_REPO, GITHUB_BRANCH, " +
-                              "ואז לעשות Trigger deploy (משתני סביבה נכנסים לתוקף רק ב-deploy הבא)."));
+                            : "ב-Netlify: Project configuration → Environment variables → " +
+                              "להוסיף משתנה אחד בשם ADMIN_PASSWORD עם סיסמה ארוכה, " +
+                              "ואז Deploys → Trigger deploy (משתני סביבה נכנסים לתוקף רק ב-deploy הבא)."));
                     diagBox.appendChild(hint);
                 }
             });

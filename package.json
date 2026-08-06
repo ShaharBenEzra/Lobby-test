@@ -1,0 +1,10 @@
+{
+  "name": "lobby-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "description": "דשבורד לובי - הפונקציות של מצב הניהול. האתר עצמו סטטי ואין לו שלב build.",
+  "type": "module",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}

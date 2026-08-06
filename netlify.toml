@@ -1,18 +1,23 @@
 # הגדרות Netlify לדשבורד.
 #
-# publish = "."          → האתר הוא הקבצים בשורש הריפו (אין שלב build)
-# functions = "netlify/functions"  → כאן יושבת פונקציית הניהול
+# publish = "."                    → האתר הוא הקבצים בשורש הריפו (אין שלב build)
+# functions = "netlify/functions"  → כאן יושבות הפונקציות: admin (כתיבה) ו-content (קריאה)
 #
-# ⚠️  אין כאן שום סוד. הסיסמה וה-token של GitHub נקבעים בממשק של Netlify
-#     (Site configuration → Environment variables) ולעולם לא בריפו.
+# אין פה command: האתר סטטי ואין מה לבנות. Netlify עדיין מזהה את package.json
+# ומתקינה את @netlify/blobs לפני אריזת הפונקציות. אם ה-deploy נכשל עם
+# "Could not resolve @netlify/blobs" - זו הנקודה לבדוק.
+#
+# ⚠️  אין כאן שום סוד. הסיסמה נקבעת בממשק של Netlify
+#     (Project configuration → Environment variables) ולעולם לא בריפו.
 #     ראו ADMIN_SETUP.md.
 
 [build]
   publish = "."
   functions = "netlify/functions"
 
-# קבצי התוכן הם המקור החי שכל מסך מושך כל שתי דקות - אסור שיישבו
-# ב-cache של הדפדפן או של ה-CDN, אחרת עדכון של הוועד "לא יגיע" למסך.
+# קבצי הגיבוי הסטטיים - נקראים לפני הפרסום הראשון. אסור שיישבו ב-cache,
+# אחרת מסך שנפל לגיבוי יישאר עם גרסה ישנה.
+# (התוכן החי מגיע מפונקציית content, שכבר שולחת no-store בעצמה.)
 [[headers]]
   for = "/content/*"
   [headers.values]
