@@ -5,9 +5,9 @@
 // הסיסמה נבדקת בצד השרת (Netlify Function) ולא נמצאת בקוד הדף.
 // שמירה = commit אמיתי לריפו, וכל מסך אוסף את השינוי לבד תוך דקה-שתיים.
 //
-// אם הפונקציה לא זמינה (הרצה מקומית / בלי אינטרנט) הפאנל עובר למצב מקומי:
-// הסיסמה נבדקת מול ADMIN_LOCAL_PASSWORD, השמירה נשמרת בדפדפן הנוכחי בלבד,
-// והפאנל אומר את זה במפורש בכל מסך שלו.
+// בהרצה מקומית (localhost / file://) הפאנל נכנס ישר למצב מקומי בלי סיסמה:
+// השמירה נשמרת בדפדפן הנוכחי בלבד, והפאנל אומר את זה במפורש בכל מסך שלו.
+// באתר האמיתי אין מסלול עקיפה - אם הפונקציה לא זמינה מוצג אבחון בלבד.
 //
 // החלון נבנה כאן ב-JS ומוצמד ישירות ל-body (ולא בתוך #tv-stage) בכוונה:
 // #tv-stage מוקטן/מוגדל ע"י stage_scale.js לפי גודל המסך, ואילו חלון
@@ -19,9 +19,25 @@
     // זה המכשיר של האדמין בלבד, והיא נמחקת ב"יציאה" ובתום הזמן.
     var SESSION_KEY = "admin-session-v2";
 
-    var LOCAL_PASSWORD = typeof ADMIN_LOCAL_PASSWORD !== "undefined" ? String(ADMIN_LOCAL_PASSWORD) : "1234";
     var SESSION_HOURS = typeof ADMIN_SESSION_HOURS !== "undefined" ? Number(ADMIN_SESSION_HOURS) : 8;
     var BUTTON_VISIBLE = typeof ADMIN_BUTTON_VISIBLE !== "undefined" ? ADMIN_BUTTON_VISIBLE !== false : true;
+
+    // מצב מקומי נקבע לפי *מאיפה הדף נטען*, ולא לפי סיסמה שיושבת בקוד.
+    //
+    // למה: סיסמה בקוד של אתר סטטי גלויה לכל מבקר, ולכן היא לא מגנה על כלום -
+    // היא רק נראית כמו הגנה. בנוסף, Netlify סורקת את תוצרי ה-build ומפילה
+    // את ה-deploy אם ערך של משתנה סביבה מופיע בהם; סיסמה בקוד הפכה כל
+    // התנגשות מקרית ל-deploy שבור.
+    //
+    // בהרצה מקומית ממילא אין למי לפנות ואין ממה להגן - הקבצים על המחשב
+    // שלכם. באתר האמיתי הסיסמה נבדקת בצד השרת בלבד, ואם הפונקציה לא זמינה
+    // הפאנל מציג אבחון ולא נותן מסלול עקיפה.
+    function isLocalHost() {
+        if (location.protocol === "file:") return true;
+        var h = location.hostname;
+        return h === "localhost" || h === "127.0.0.1" || h === "[::1]" || h === "::1" ||
+               /\.local$/.test(h);
+    }
 
     // אייקונים נפוצים לבניין - שמות Font Awesome (סגנון Solid) עם תווית בעברית,
     // כדי שלא צריך להכיר את שמות האייקונים באנגלית. יש גם שדה חופשי.
@@ -224,20 +240,6 @@
             var password = input.value;
             error.textContent = "";
 
-            // מצב מקומי מוגדר מראש - אין בכלל למי לפנות
-            if (AdminStore.isLocalOnly()) {
-                if (password === LOCAL_PASSWORD) {
-                    localMode = true;
-                    login(password, true);
-                    renderEditor();
-                } else {
-                    error.textContent = "סיסמה שגויה - נסו שוב";
-                    input.value = "";
-                    input.focus();
-                }
-                return;
-            }
-
             setBusy(true);
             AdminStore.verifyPassword(password).then(function (result) {
                 setBusy(false);
@@ -275,12 +277,13 @@
                     return;
                 }
 
-                // אין תשובה בכלל - מציעים מצב מקומי כדי לא להשאיר את האדמין תקוע
-                if (password === LOCAL_PASSWORD) {
+                // אין תשובה בכלל. בהרצה מקומית זה מצופה, ולכן נכנסים למצב
+                // מקומי; באתר האמיתי לא נותנים מסלול עקיפה - רק אבחון.
+                if (isLocalHost()) {
                     localMode = true;
-                    login(password, true);
+                    login("", true);
                     renderEditor();
-                    toast("אין תשובה מהשרת - נכנסת במצב מקומי", "error");
+                    toast("הרצה מקומית - נכנסת במצב מקומי", "error");
                 } else {
                     error.textContent = "אין תשובה משרת הניהול.";
                     showDiagnostics();
@@ -338,6 +341,20 @@
         enterBtn = button("admin-btn admin-btn-primary", "כניסה", submit);
         footEl.appendChild(enterBtn);
         footEl.appendChild(button("admin-btn admin-btn-ghost", "ביטול", function () { close(true); }));
+
+        // בהרצה מקומית ההגדרות עדיין מצביעות על פונקציה שאולי לא רצה
+        // (תלוי אם הופעל netlify dev). מסלול מפורש חוסך ניחוש סיסמה
+        // סתמית רק כדי ליפול למצב מקומי. באתר האמיתי זה לא מוצג.
+        if (isLocalHost()) {
+            var localRow = el("div", "admin-foot-extra");
+            localRow.appendChild(button("admin-btn-sm admin-btn-ghost",
+                "כניסה במצב מקומי (בלי פרסום)", function () {
+                    localMode = true;
+                    login("", true);
+                    renderEditor();
+                }));
+            footEl.appendChild(localRow);
+        }
 
         setTimeout(function () { input.focus(); }, 50);
     }
@@ -798,9 +815,20 @@
         if (s) {
             localMode = !!s.local || AdminStore.isLocalOnly();
             renderEditor();
-        } else {
-            renderLogin();
+            return;
         }
+
+        // הרצה מקומית בלי פונקציות: אין למי לפנות ואין ממה להגן (הקבצים
+        // על המחשב הזה), ולכן נכנסים ישר לעריכה במקום לבקש סיסמה שממילא
+        // הייתה חייבת לשבת בקוד
+        if (AdminStore.isLocalOnly()) {
+            localMode = true;
+            login("", true);
+            renderEditor();
+            return;
+        }
+
+        renderLogin();
     }
 
     function close(force) {
