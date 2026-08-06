@@ -1,0 +1,23 @@
+{
+  "updatedAt": "2026-08-06T00:00:00.000Z",
+  "status": [
+    {
+      "icon": "trash-can",
+      "label": "פינוי אשפה",
+      "value": "בימי ב׳",
+      "state": ""
+    },
+    {
+      "icon": "elevator",
+      "label": "מעלית",
+      "value": "תקין ✓",
+      "state": "good"
+    },
+    {
+      "icon": "broom",
+      "label": "ניקיון",
+      "value": "א׳, ג׳, ו׳",
+      "state": ""
+    }
+  ]
+}

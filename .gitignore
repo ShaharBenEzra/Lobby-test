@@ -1,0 +1,16 @@
+# ⚠️  אין לשמור בריפו הזה סודות: ה-GITHUB_TOKEN וה-ADMIN_PASSWORD
+#     נקבעים בממשק של Netlify בלבד. ראו ADMIN_SETUP.md.
+.env
+.env.*
+*.pem
+
+# Netlify CLI (netlify dev / netlify deploy) - מצב מקומי
+.netlify/
+
+# Node - רק אם יופיעו בעתיד תלויות לפונקציות
+node_modules/
+
+# Windows / macOS
+Thumbs.db
+desktop.ini
+.DS_Store

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HaTormus - Building Dashboard</title>
+
+    <!--
+        רענון אוטומטי כל 4 שעות - מטופל ב-auto_refresh.js ולא ב-meta refresh,
+        כדי שאפשר יהיה להשהות אותו כשחלון הניהול פתוח (אחרת רענון באמצע
+        עריכה היה מוחק לאדמין את מה שהקליד). ראו auto_refresh.js.
+    -->
+
+    <!-- גופנים ואייקונים מ-Google -->
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!--
+        CSS אחד מאוחד במקום 6 קבצים נפרדים.
+        כל הצבעים, הגדלים, והסגנונות מוגדרים במקום אחד
+        עם משתני CSS (:root) לשינוי מהיר של הפלטה.
+    -->
+    <link rel="stylesheet" href="design_improved.css">
+</head>
+
+<body class="dark-mode">
+
+    <!-- מחיל את ערכת הצבעים השמורה מיד, לפני שהתוכן מצטייר (מונע הבזק צבע) -->
+    <script>
+        (function () {
+            var saved = localStorage.getItem("dashboard-theme");
+            var classes = {
+                gold:     "theme-gold",
+                royal:    "theme-royal",
+                bordeaux: "theme-bordeaux",
+                petrol:   "theme-petrol",
+                day:      "theme-day"
+            };
+            // מזהה חסר או ישן (steel / emerald / mono) → זהב קלאסי, ברירת המחדל
+            document.body.classList.add(classes[saved] || "theme-gold");
+            if (saved === "day") document.body.classList.remove("dark-mode");
+        })();
+    </script>
+
+    <audio id="galgalatz-audio" preload="none"></audio>
+
+    <!-- קנבס פיקסלים קבוע (1280x720) - stage_scale.js מתאים אותו לכל מסך בסקייל אחיד -->
+    <div id="tv-stage">
+
+    <div class="main-wrapper">
+
+        <!-- ═══════════════════════════════════════════
+             HEADER: מזג אוויר + תחזית + שעון
+             נתונים מגיעים מ: weather_script.js
+             API: open-meteo.com (חינמי, ללא מפתח)
+             מתעדכן כל 30 דקות
+        ════════════════════════════════════════════ -->
+        <header class="weather-container">
+
+            <!-- שמאל: שם הפרויקט + טמפרטורה נוכחית -->
+            <div class="current-weather-section">
+                <div class="location-info">
+                    <div class="city-name">ראשון לציון</div>
+                    <div class="project-name">התורמוס 8</div>
+                    <div class="area-name">קריית ראשון</div>
+                </div>
+                <div class="current-main">
+                    <!-- האייקון והטמפרטורה מתמלאים ע"י weather_script.js -->
+                    <span id="main-weather-icon" class="material-symbols-outlined main-icon">wb_sunny</span>
+                    <span class="main-temp">--°</span>
+                </div>
+            </div>
+
+            <!-- אמצע: תחזית 7 ימים – weather_script.js בונה את ה-HTML כאן -->
+            <div id="forecast-container" class="forecast-section"></div>
+
+            <!-- ימין: שעון ותאריך – מתעדכן כל 10 שניות ע"י weather_script.js -->
+            <div class="clock-section">
+                <div id="time" class="big-time">--:--</div>
+                <div id="date" class="date-chip">טוען...</div>
+            </div>
+
+        </header>
+
+        <!-- ═══════════════════════════════════════════
+             MIDDLE: לוח מרכזי – 3 עמודות
+        ════════════════════════════════════════════ -->
+        <div class="middle-content">
+            <div class="unified-board">
+
+                <!-- ─── עמודה 1: הודעות ועד בית ─── -->
+                <section class="notices-section">
+                    <div class="section-header">
+                        <span class="material-symbols-outlined">notifications</span>
+                        <h2>הודעות ועד בית</h2>
+                    </div>
+
+                    <!-- ═══════════════════════════════════════════
+                         כפתור רדיו גלגלצ – כבוי כברירת מחדל, לחיצה מפעילה שידור חי
+                         radio_script.js מטפל בלוגיקת ההשמעה
+                    ════════════════════════════════════════════ -->
+                    <div class="radio-bar" id="radio-toggle" role="button" aria-pressed="false" title="גלגלצ - שידור חי">
+                        <div class="radio-icon-wrap">
+                            <span class="material-symbols-outlined" id="radio-icon">play_arrow</span>
+                        </div>
+                        <span class="radio-label" id="radio-label">גלגלצ</span>
+                        <div class="radio-bars"><span></span><span></span><span></span></div>
+                    </div>
+
+                    <!-- ההודעות נטענות מ-notices_data.js (קובץ טקסט לעריכה קלה) ע"י notices_script.js -->
+                    <div class="notices-list" id="notices-list"></div>
+
+                    <!-- קוד QR – תמונה מהתיקייה המקומית -->
+                    <div class="qr-container-mini">
+                        <div class="qr-item">
+                            <span class="qr-label">קבוצת וואצאפ - דיירים</span>
+                            <img src="Q1_whasapp_group.png" alt="WhatsApp QR">
+                        </div>
+                    </div>
+                </section>
+
+                <div class="vertical-divider"></div>
+
+                <!-- ─── עמודה 2: מועדים ואירועים ───
+                     נתונים מגיעים מ: Event_script.js
+                     API: hebcal.com (חינמי, ללא מפתח)
+                     מציג 3 חגים/מועדים הקרובים בלוח העברי
+                ─────────────────────────────────── -->
+                <section class="events-section">
+                    <div class="section-header">
+                        <span class="material-symbols-outlined">calendar_month</span>
+                        <h2>מועדים ואירועים</h2>
+                    </div>
+                    <!-- כניסת/יציאת שבת – ממולא ע"י Event_script.js (מתעדכן אוטומטית בכל טעינה) -->
+                    <div class="shabbat-times" id="shabbat-times"></div>
+
+                    <!-- Event_script.js ממלא את הdiv הזה בטעינה -->
+                    <div class="events-list" id="holidays-list">
+                        <p style="padding: 10px; color: var(--text-muted);">טוען מועדים...</p>
+                    </div>
+                </section>
+
+                <div class="vertical-divider"></div>
+
+                <!-- ─── עמודה 3: סטטוס בניין + חלון תמונה ───
+                     סטטוס: building_status_data.js (קובץ טקסט לעריכה קלה,
+                     באותו סטייל של הודעות ועד בית) - building_status_script.js
+                     בונה את ה-HTML כאן.
+                     תמונה: side_image_data.js / side_image_script.js - ראו הסבר
+                     בתוך side_image_data.js.
+                ─────────────────────────────────── -->
+                <section class="building-status-section">
+                    <div class="section-header">
+                        <span class="material-symbols-outlined">apartment</span>
+                        <h2>סטטוס בניין</h2>
+                        <!-- מציג/מסתיר את חלון התמונה שמתחת - המצב נשמר ב-localStorage -->
+                        <div class="image-toggle-btn" id="image-toggle-btn" role="button" aria-pressed="false" title="הצג/הסתר תמונה">
+                            <span class="material-symbols-outlined" id="image-toggle-icon">image</span>
+                        </div>
+                    </div>
+                    <div class="status-column-wrapper" id="building-status-list"></div>
+
+                    <div class="side-image-window" id="side-image-window"></div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         מצב ניהול (אדמין) - כפתור המנעול פותח את חלון העריכה של
+         "הודעות ועד בית" ו"סטטוס בניין" ישירות מהמסך, בלי לגעת בקוד.
+         סיסמה והגדרות: admin_config.js  |  לוגיקה: admin_panel.js
+         (החלון עצמו נבנה ב-JS ומוצמד ל-body, מחוץ ל-#tv-stage, כדי
+          שיוצג בגודל אמיתי וקריא גם בעריכה מהטלפון)
+    ════════════════════════════════════════════ -->
+    <div class="admin-toggle-btn" id="admin-btn" role="button" title="מצב ניהול - עריכת הודעות וסטטוס">
+        <span class="material-symbols-outlined">lock</span>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         בחירת ערכת צבעים - כפתור + פאנל, נשמר ב-localStorage
+         theme_picker.js מטפל בלוגיקה
+    ════════════════════════════════════════════ -->
+    <div class="theme-picker-btn" id="theme-picker-btn" role="button" title="בחירת ערכת צבעים">
+        <span class="material-symbols-outlined">palette</span>
+    </div>
+    <div class="theme-picker-panel" id="theme-picker-panel">
+        <div class="theme-picker-title">ערכת צבעים</div>
+        <!-- theme_picker.js ממלא כאן את שורות הבחירה -->
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         FOOTER: בר חדשות Ynet
+         נתונים מגיעים מ: Ynet_script.js
+         RSS: ynet.co.il דרך proxy של allorigins.win
+         מתעדכן כל 10 דקות, עם cache ב-localStorage לגיבוי
+    ════════════════════════════════════════════ -->
+    <footer class="news-bar">
+        <div class="logo-area">
+            <img src="https://ynet-pic1.yit.co.il/picserver5/wcm_upload/2024/07/09/B1LH3j5DR/new_logo_gif_ynet.gif" alt="ynet">
+        </div>
+        <div class="ticker-container">
+            <div id="status-msg">טוען כותרות...</div>
+            <!-- Ynet_script.js ממלא את הdiv הזה -->
+            <div id="ticker" class="ticker-track"></div>
+        </div>
+    </footer>
+
+    </div> <!-- /#tv-stage -->
+
+    <!-- ═══════════════════════════════════════════
+         סקריפטים חיצוניים
+
+         weather_script.js  → open-meteo.com API
+                               מזג אוויר נוכחי + תחזית 7 ימים
+                               + שעון ותאריך
+
+         Ynet_script.js     → ynet.co.il RSS feed
+                               דרך allorigins.win (proxy חינמי)
+                               + cache ב-localStorage לגיבוי
+
+         Event_script.js    → hebcal.com API
+                               חגים ומועדים עבריים קרובים
+
+         stage_scale.js     → מתאים את #tv-stage (1280x720) לגודל המסך
+                               בפועל בסקייל אחיד, כדי שהתצוגה תישאר
+                               פרופורציונלית במסכי אנדרואיד TV / קיוסק
+
+         keep_alive.js      → Screen Wake Lock API - מונע מהמסך של
+                               הסטרימר/הקיוסק להירדם מחוסר אינטראקציה
+
+         building_status_data.js / _script.js → סטטוס בניין (עמודה 3),
+                               קובץ נתונים לעריכה קלה + סקריפט שבונה את ה-HTML
+
+         side_image_data.js / _script.js → חלון התמונה שמתחת לסטטוס בניין
+                               (עמודה 3) - ראו הסבר בתוך side_image_data.js.
+
+         auto_refresh.js    → רענון אוטומטי כל 4 שעות (במקום meta refresh),
+                               ניתן להשהיה בזמן שחלון הניהול פתוח
+
+         admin_config.js    → סיסמת הניהול והגדרות מצב ניהול
+         admin_store.js     → שכבת הנתונים: ברירת מחדל מקבצי הקוד +
+                               עריכות של האדמין ב-localStorage
+         admin_panel.js     → חלון העריכה עצמו (הודעות + סטטוס בניין)
+
+         ⚠️  סדר הטעינה חשוב: קבצי הנתונים (_data) לפני admin_store.js,
+             ו-admin_store.js לפני הסקריפטים שמציירים (_script).
+    ════════════════════════════════════════════ -->
+    <script src="stage_scale.js"></script>
+    <script src="keep_alive.js"></script>
+    <script src="auto_refresh.js"></script>
+    <script src="weather_script.js"></script>
+    <script src="Ynet_script.js"></script>
+    <script src="Event_script.js"></script>
+    <script src="radio_script.js"></script>
+
+    <!-- נתונים → שכבת הנתונים → ציור → חלון הניהול -->
+    <script src="notices_data.js"></script>
+    <script src="building_status_data.js"></script>
+    <script src="admin_config.js"></script>
+    <script src="admin_store.js"></script>
+    <script src="notices_script.js"></script>
+    <script src="building_status_script.js"></script>
+    <script src="admin_panel.js"></script>
+
+    <script src="side_image_data.js"></script>
+    <script src="side_image_script.js"></script>
+    <script src="theme_picker.js"></script>
+
+</body>
+</html>

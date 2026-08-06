@@ -1,0 +1,1500 @@
+/* ============================================
+   BUILDING DASHBOARD - IMPROVED DESIGN SYSTEM
+   ============================================ */
+
+/* --- 1. DESIGN TOKENS --- */
+:root {
+    /* Palette */
+    --gold:          #3b6e91;
+    --gold-light:    #e9f1f5;
+    --gold-dim:      #274a61;
+    --blue:          #56829e;
+    --blue-light:    #eaf2f6;
+    --green:         #2f9e6e;
+    --green-light:   #e9f8f1;
+    --red:           #c14545;
+    --ynet-red:      #b3262e;
+    --radio-teal:    #3b6e91;
+    --radio-teal-dim:#274a61;
+
+    /* Neutrals */
+    --bg:            #eef3f6;
+    --surface:       #ffffff;
+    --surface-2:     #f4f7f9;
+    --border:        #dde5ea;
+    --text:          #1f2933;
+    --text-muted:    #64748a;
+    --text-faint:    #a3b1bf;
+
+    /* Radius scale – unified */
+    --r-sm:  10px;
+    --r-md:  16px;
+    --r-lg:  22px;
+
+    /* Shadows */
+    --shadow-sm:  0 2px 8px rgba(0,0,0,0.06);
+    --shadow-md:  0 6px 24px rgba(0,0,0,0.08);
+    --shadow-lg:  0 12px 40px rgba(0,0,0,0.1);
+
+    /* News bar */
+    --bar-height: 58px;
+    --ticker-speed: 180s;
+}
+
+/* --- 2. DARK MODE TOKENS --- */
+body.dark-mode {
+    --bg:            #121820;
+    --surface:       #1a2229;
+    --surface-2:     #212b34;
+    --border:        #303c48;
+    --text:          #e8edf2;
+    --text-muted:    #92a0af;
+    --text-faint:    #4c5866;
+    --gold:          #5b9bc7;
+    --gold-light:    #1c2f3d;
+    --gold-dim:      #8fc1de;
+    --blue:          #7fa8c0;
+    --blue-light:    #16262f;
+    --green-light:   #0d2318;
+    --shadow-md:     0 6px 24px rgba(0,0,0,0.4);
+    --shadow-lg:     0 12px 40px rgba(0,0,0,0.6);
+    --ynet-red:      #801a1f;
+    --radio-teal:    #5b9bc7;
+    --radio-teal-dim:#8fc1de;
+}
+
+/* --- 2ב. פלטות צבעים - נבחרות ע"י theme_picker.js שמוסיף class ל-body:
+       theme-royal / theme-gold / theme-bordeaux / theme-petrol / theme-day
+
+       כל פלטה מגדירה סט מלא של משתנים, ולכן ה-:root שלמעלה משמש רק כבסיס
+       (אם משום מה לא הוחל אף class). לכל פלטה יש גרסה בהירה וגרסה כהה,
+       חוץ מ"מצב יום" שהיא תמיד בהירה.
+
+       מבנה הצבעים בכל פלטה:
+         --gold      = צבע ההדגשה הראשי (כותרות, אייקונים, מסגרות)
+         --blue      = צבע משני משלים (חם מול קר)
+         --bg/surface/border/text = ניטרליים בגוון של הפלטה            --- */
+
+/* כחול מלכותי - נייבי עמוק עם תכלת קרח. נקי ורגוע */
+body.theme-royal {
+    --gold:          #2b5ea8;
+    --gold-light:    #e7eefb;
+    --gold-dim:      #1c3f74;
+    --blue:          #b07b3c;
+    --blue-light:    #fbf1e3;
+    --bg:            #edf1f8;
+    --surface-2:     #f6f8fc;
+    --border:        #dee4f0;
+    --text:          #141a28;
+    --text-muted:    #6b7891;
+    --text-faint:    #a8b2c6;
+    --radio-teal:    #2b5ea8;
+    --radio-teal-dim:#1c3f74;
+}
+body.dark-mode.theme-royal {
+    --bg:            #0a1120;
+    --surface:       #131c2e;
+    --surface-2:     #1a2539;
+    --border:        #27334a;
+    --text:          #e7edf8;
+    --text-muted:    #8f9dba;
+    --text-faint:    #4d5a76;
+    --gold:          #6ea8ff;
+    --gold-light:    #12233f;
+    --gold-dim:      #a9cbff;
+    --blue:          #e0b170;
+    --blue-light:    #33260f;
+    --green:         #3ecf96;
+    --red:           #ff7a7a;
+    --radio-teal:    #6ea8ff;
+    --radio-teal-dim:#a9cbff;
+    --ynet-red:      #8c2028;
+}
+
+/* זהב קלאסי - הפלטה המקורית של הדשבורד */
+body.theme-gold {
+    --gold:          #c8a84b;
+    --gold-light:    #f5edcf;
+    --gold-dim:      #8a6f2e;
+    --blue:          #2c3e6b;
+    --blue-light:    #ebf2ff;
+    --bg:            #eef0f5;
+    --surface-2:     #f7f8fa;
+    --border:        #e4e7ed;
+    --text:          #1a1f2e;
+    --text-muted:    #7f8c99;
+    --text-faint:    #b0b8c4;
+    --radio-teal:    #c8a84b;
+    --radio-teal-dim:#8a6f2e;
+}
+body.dark-mode.theme-gold {
+    --bg:            #0d0f14;
+    --surface:       #161b26;
+    --surface-2:     #1e2535;
+    --border:        #2a3045;
+    --text:          #e8ecf4;
+    --text-muted:    #8892a8;
+    --text-faint:    #4a5168;
+    --gold:          #d4a84b;
+    --gold-light:    #2d2510;
+    --gold-dim:      #f0c080;
+    --blue:          #7ab0e8;
+    --blue-light:    #0e1930;
+    --radio-teal:    #d4a84b;
+    --radio-teal-dim:#f0c080;
+}
+
+/* בורדו - יין עמוק עם ורוד-זהב. חמים ויוקרתי */
+body.theme-bordeaux {
+    --gold:          #8e2f45;
+    --gold-light:    #fbeaee;
+    --gold-dim:      #6a1f31;
+    --blue:          #a8763f;
+    --blue-light:    #f9f0e4;
+    --bg:            #f5eff1;
+    --surface-2:     #faf5f6;
+    --border:        #e8dce0;
+    --text:          #22161a;
+    --text-muted:    #857176;
+    --text-faint:    #b8a5aa;
+    --radio-teal:    #8e2f45;
+    --radio-teal-dim:#6a1f31;
+}
+body.dark-mode.theme-bordeaux {
+    --bg:            #150c10;
+    --surface:       #1f1319;
+    --surface-2:     #2a1a21;
+    --border:        #3d2731;
+    --text:          #f3e7ea;
+    --text-muted:    #b08f99;
+    --text-faint:    #6b4a55;
+    --gold:          #e58ba2;
+    --gold-light:    #3a1c25;
+    --gold-dim:      #f4bcca;
+    --blue:          #d9a066;
+    --blue-light:    #3a2a16;
+    --green:         #4fd39c;
+    --red:           #ff8a8a;
+    --radio-teal:    #e58ba2;
+    --radio-teal-dim:#f4bcca;
+    --ynet-red:      #7a1f28;
+}
+
+/* פטרול - טורקיז-כחול עמוק עם נחושת. מודרני ובולט */
+body.theme-petrol {
+    --gold:          #10697a;
+    --gold-light:    #e2f2f5;
+    --gold-dim:      #0a4a57;
+    --blue:          #b5703a;
+    --blue-light:    #fbf0e6;
+    --bg:            #edf4f5;
+    --surface-2:     #f5fafb;
+    --border:        #d8e6e9;
+    --text:          #112225;
+    --text-muted:    #647b80;
+    --text-faint:    #a2b6ba;
+    --radio-teal:    #10697a;
+    --radio-teal-dim:#0a4a57;
+}
+body.dark-mode.theme-petrol {
+    --bg:            #07171b;
+    --surface:       #0e2329;
+    --surface-2:     #143038;
+    --border:        #1f4550;
+    --text:          #e3f2f5;
+    --text-muted:    #85a7af;
+    --text-faint:    #456068;
+    --gold:          #35c4d8;
+    --gold-light:    #0c313a;
+    --gold-dim:      #7fdcea;
+    --blue:          #e2a367;
+    --blue-light:    #35240f;
+    --green:         #3ed6a5;
+    --red:           #ff7f7f;
+    --radio-teal:    #35c4d8;
+    --radio-teal-dim:#7fdcea;
+    --ynet-red:      #8a2026;
+}
+
+/* מצב יום - שמש חזקה: רקע בהיר וניגודיות גבוהה לקריאות במסך שטוף שמש.
+   ערכה זו תמיד בהירה - theme_picker.js מסיר את class="dark-mode" כשהיא נבחרת */
+body.theme-day {
+    --gold:          #d97706;
+    --gold-light:    #fef3c7;
+    --gold-dim:      #92400e;
+    --blue:          #1d4ed8;
+    --blue-light:    #dbeafe;
+    --green:         #15803d;
+    --green-light:   #dcfce7;
+    --red:           #dc2626;
+    --bg:            #f2f3f5;
+    --surface:       #ffffff;
+    --surface-2:     #eceef1;
+    --border:        #c7ccd3;
+    --text:          #08090b;
+    --text-muted:    #3f4750;
+    --text-faint:    #5b6470;
+    --radio-teal:    #d97706;
+    --radio-teal-dim:#92400e;
+}
+
+/* --- 3. BASE & RESET --- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+body {
+    background-color: var(--bg);
+    font-family: 'Heebo', system-ui, sans-serif;
+    color: var(--text);
+    direction: rtl;
+    transition: background-color 0.4s ease, color 0.3s ease;
+    
+}
+
+/* --- 4. LAYOUT ---
+   #tv-stage הוא קנבס בגודל פיקסלים קבוע (1280x720 - תואם את ה-viewport meta).
+   כל המידות בפנים (כולל מה שהיה vw/vh) מחושבות ביחס לקנבס הזה ולא לגודל המסך
+   בפועל. stage_scale.js מפעיל transform:scale אחיד על #tv-stage כדי להתאים
+   אותו לכל מסך/רזולוציה בפרופורציה נכונה - זה מה שפותר את בעיית ה"זום הלא
+   פרופורציונלי" באפליקציות קיוסק כמו Fully Kiosk / TVBro. --- */
+#tv-stage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1280px;
+    height: 720px;
+    transform-origin: 0 0;
+    overflow: hidden;
+}
+
+.main-wrapper {
+    width: 1254.4px;
+    height: calc(720px - var(--bar-height));
+    display: flex;
+    flex-direction: column;
+    gap: 8.64px;
+    padding: 8.64px 12.8px;
+    margin: 0 auto;
+}
+
+/* --- 5. WEATHER HEADER --- */
+.weather-container {
+    flex: 0 0 auto;
+    min-height: 115.2px;
+    max-height: 158.4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8.64px 25.6px;
+    gap: 20px;
+    transition: background 0.4s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Left: location + temp */
+.current-weather-section {
+    flex: 2;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    border-right: 1px solid var(--border);
+    padding-right: 19.2px;
+}
+
+.city-name {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-muted);
+    letter-spacing: 0.3px;
+}
+.project-name {
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--text);
+    margin: 1px 0;
+}
+.area-name {
+    font-size: 11px;
+    color: var(--text-faint);
+}
+
+.current-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.main-temp {
+    font-size: 39.6px;
+    font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+}
+.main-icon {
+    font-size: 43.2px !important;
+    color: var(--gold);
+}
+
+/* Middle: 7-day forecast */
+.forecast-section {
+    flex: 3;
+    display: flex;
+    justify-content: space-around;
+    padding: 0 12.8px;
+}
+.forecast-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+.fc-day  { font-size: 12px; font-weight: 700; color: var(--text-muted); }
+.fc-icon { color: var(--gold); font-size: 26px !important; }
+.fc-temp { font-size: 14px; font-weight: 800; color: var(--text); }
+
+/* Right: clock */
+.clock-section {
+    flex: 1.4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.big-time {
+    font-size: 46.8px;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1;
+}
+.date-chip {
+    background: var(--gold-light);
+    color: var(--gold-dim);
+    padding: 6px 14px;
+    border-radius: var(--r-sm);
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+body.dark-mode .date-chip {
+    background: var(--gold-light);
+    color: var(--gold);
+}
+
+/* --- 6. MIDDLE BOARD --- */
+.middle-content {
+    flex: 1;
+    min-height: 0;
+}
+
+.unified-board {
+    height: 100%;
+    background: var(--surface);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border);
+    display: flex;
+    gap: 0;
+    overflow: hidden;
+    position: relative;
+    transition: background 0.4s ease, border-color 0.3s ease;
+}
+
+/* Section base */
+.notices-section,
+.events-section,
+.building-status-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 18px 16px;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* Section headers */
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+    flex-shrink: 0;
+}
+.section-header h2 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text);
+}
+.section-header .material-symbols-outlined {
+    font-size: 22px;
+    color: var(--gold);
+}
+
+/* כפתור הצג/הסתר לחלון התמונה - ראו side_image_script.js */
+.image-toggle-btn {
+    margin-inline-start: auto;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.image-toggle-btn:hover { background: var(--surface-2); }
+.image-toggle-btn.is-on {
+    color: var(--gold);
+    background: var(--gold-light);
+}
+.image-toggle-btn.is-locked {
+    opacity: 0.5;
+    cursor: default;
+}
+.image-toggle-btn .material-symbols-outlined {
+    font-size: 18px;
+    color: inherit;
+}
+
+/* Vertical dividers */
+.vertical-divider {
+    width: 1px;
+    background: var(--border);
+    flex-shrink: 0;
+}
+
+/* --- 7. NOTICES --- */
+.notices-list {
+    flex: 1;
+    overflow: hidden;
+}
+
+/* notices_script.js מפעיל גלילה רק אם התוכן בפועל לא נכנס בגובה הזמין -
+   כך שעם 3-4 הודעות קצרות זה נשאר סטטי, ורק אם מוסיפים עוד הודעות זה
+   עובר אוטומטית לגלילה רציפה (במהירות קבועה - לא צריך לכייל שוב ידנית) */
+.notices-track {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.notices-track.is-scrolling {
+    animation: notices-scroll linear infinite;
+    animation-duration: var(--notices-scroll-duration, 20s);
+}
+.notices-track.is-scrolling:hover { animation-play-state: paused; }
+@keyframes notices-scroll {
+    0%   { transform: translateY(0); }
+    100% { transform: translateY(-50%); }
+}
+
+.notice-item {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-right: 4px solid var(--gold);
+    border-radius: var(--r-md);
+    padding: 9px 12px;
+    transition: border-color 0.2s;
+}
+.notice-item.active-notice {
+    border-right-color: var(--red);
+    background: #fff5f5;
+}
+body.dark-mode .notice-item.active-notice {
+    background: #1e0f0f;
+}
+.notice-item h3 {
+    margin: 0 0 3px 0;
+    font-size: 0.86rem;
+    font-weight: 800;
+    color: var(--gold-dim);
+}
+.notice-item.active-notice h3 { color: var(--red); }
+body.dark-mode .notice-item h3 { color: var(--gold); }
+.notice-item p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+/* QR codes */
+.qr-container-mini {
+    display: flex;
+    justify-content: center;
+    padding-top: 10px;
+    margin-top: auto;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+}
+.qr-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+.qr-label {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--text-muted);
+}
+.qr-item img {
+    width: 80px;
+    height: 80px;
+    padding: 4px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+}
+
+/* --- 8. EVENTS --- */
+.shabbat-times { flex-shrink: 0; }
+.shabbat-card {
+    background: linear-gradient(135deg, var(--gold-light), var(--surface-2));
+    border: 1px solid var(--gold);
+    border-radius: var(--r-md);
+    padding: 12px 14px;
+    margin-bottom: 12px;
+}
+.shabbat-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--gold-dim);
+    margin-bottom: 10px;
+}
+body.dark-mode .shabbat-title { color: var(--gold); }
+.shabbat-title .material-symbols-outlined { font-size: 18px; }
+.shabbat-times-row {
+    display: flex;
+    gap: 10px;
+}
+.shabbat-time {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 6px;
+    border-radius: var(--r-sm);
+    background: var(--surface);
+}
+.shabbat-label { font-size: 0.72rem; color: var(--text-muted); font-weight: 700; }
+.shabbat-value { font-size: 1.05rem; font-weight: 900; color: var(--text); }
+.shabbat-in  .shabbat-value { color: var(--gold-dim); }
+.shabbat-out .shabbat-value { color: var(--blue); }
+body.dark-mode .shabbat-in  .shabbat-value { color: var(--gold); }
+body.dark-mode .shabbat-out .shabbat-value { color: #7ab0e8; }
+
+.events-list {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.event-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+}
+.event-date {
+    background: var(--blue-light);
+    color: var(--blue);
+    padding: 10px;
+    border-radius: var(--r-sm);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 48px;
+    flex-shrink: 0;
+}
+body.dark-mode .event-date { color: #7ab0e8; }
+.event-date .day   { font-size: 1.15rem; font-weight: 900; line-height: 1; }
+.event-date .month { font-size: 0.72rem; margin-top: 2px; }
+.event-info h4     { margin: 0 0 2px 0; color: var(--text); font-size: 0.9rem; font-weight: 700; }
+.event-info p      { margin: 0; color: var(--text-faint); font-size: 0.78rem; }
+
+/* --- 9. BUILDING STATUS --- */
+.status-column-wrapper {
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.status-item-mini {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 13px 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-right: 4px solid var(--border);
+    border-radius: var(--r-md);
+    transition: background 0.2s, border-color 0.2s;
+}
+.status-item-mini.is-active {
+    background: var(--green-light);
+    border-right-color: var(--green);
+}
+body.dark-mode .status-item-mini.is-active { background: #0d2318; }
+
+.status-item-mini .status-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 15px;
+    flex-shrink: 0;
+}
+.status-item-mini.is-active .status-icon {
+    background: #d3f9d8;
+    border-color: #a3e8ac;
+    color: var(--green);
+}
+body.dark-mode .status-item-mini.is-active .status-icon {
+    background: #163322;
+    border-color: #27ae60;
+}
+
+.status-label {
+    display: block;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text);
+}
+.status-value {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+.status-value.highlight { color: var(--green); font-weight: 700; }
+.status-value.status-warning {
+    color: var(--red) !important;
+    font-weight: 700;
+}
+
+/* חלון תמונה נפרד מתחת לסטטוס בניין - ראו side_image_data.js.
+   מוסתר כברירת מחדל - מוצג רק כשמפעילים אותו עם הכפתור בכותרת (image-toggle-btn),
+   side_image_script.js שומר את המצב ב-localStorage. */
+.side-image-window {
+    display: none;
+    flex: 1;
+    min-height: 0;
+    margin-top: 12px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    overflow: hidden;
+    align-items: center;
+    justify-content: center;
+}
+.side-image-window.is-visible { display: flex; }
+.side-image-window img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* --- 10. GALGALATZ RADIO BAR --- */
+.radio-bar {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    padding: 6px 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.3s ease, border-color 0.3s ease;
+}
+.radio-bar:hover { border-color: var(--radio-teal); }
+.radio-bar .radio-icon-wrap {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--radio-teal-dim);
+    flex-shrink: 0;
+    transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+.radio-bar .radio-icon-wrap .material-symbols-outlined { font-size: 17px; }
+.radio-bar .radio-label {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--text);
+    white-space: nowrap;
+}
+.radio-bar .radio-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 14px;
+    margin-right: auto;
+}
+.radio-bar .radio-bars span {
+    width: 3px;
+    height: 4px;
+    background: var(--radio-teal);
+    border-radius: 2px;
+    opacity: 0.35;
+}
+.radio-bar.is-playing { border-color: var(--radio-teal); }
+.radio-bar.is-playing .radio-icon-wrap {
+    background: var(--radio-teal);
+    border-color: var(--radio-teal);
+    color: #fff;
+}
+.radio-bar.is-playing .radio-bars span {
+    opacity: 1;
+    animation: radio-bounce 0.9s ease-in-out infinite;
+}
+.radio-bar.is-playing .radio-bars span:nth-child(1) { animation-delay: 0s; }
+.radio-bar.is-playing .radio-bars span:nth-child(2) { animation-delay: 0.2s; }
+.radio-bar.is-playing .radio-bars span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes radio-bounce {
+    0%, 100% { height: 4px; }
+    50%      { height: 14px; }
+}
+
+/* --- 11ב. THEME PICKER --- */
+.theme-picker-btn {
+    position: absolute;
+    bottom: calc(var(--bar-height) + 18px);
+    right: 18px;
+    z-index: 1001;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gold);
+    cursor: pointer;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.theme-picker-btn:hover { box-shadow: var(--shadow-lg); transform: scale(1.05); }
+.theme-picker-btn .material-symbols-outlined { font-size: 22px; }
+
+.theme-picker-panel {
+    position: absolute;
+    bottom: calc(var(--bar-height) + 68px);
+    right: 18px;
+    z-index: 1002;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-lg);
+    padding: 14px;
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 190px;
+}
+.theme-picker-panel.is-open { display: flex; }
+.theme-picker-title {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+}
+.theme-swatch-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+.theme-swatch-row:hover { background: var(--surface-2); }
+.theme-swatch-row.is-selected {
+    border-color: var(--gold);
+    background: var(--surface-2);
+}
+.theme-swatch-dots {
+    display: flex;
+    flex-shrink: 0;
+}
+.theme-swatch-dots span {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--surface);
+    margin-right: -8px;
+}
+.theme-swatch-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text);
+}
+.theme-swatch-check {
+    margin-inline-start: auto;
+    color: var(--gold);
+    font-size: 18px !important;
+    visibility: hidden;
+}
+.theme-swatch-row.is-selected .theme-swatch-check { visibility: visible; }
+
+/* --- 11. YNET NEWS BAR --- */
+.news-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: var(--bar-height);
+    background: var(--ynet-red);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    z-index: 1000;
+    box-shadow: 0 -3px 20px rgba(0,0,0,0.2);
+    overflow: hidden;
+    transition: background 0.4s ease;
+}
+.logo-area {
+    background: rgba(0,0,0,0.15);
+    padding: 0 18px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+.logo-area img { height: 26px; }
+.ticker-container {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+.ticker-track {
+    display: flex;
+    white-space: nowrap;
+    animation: marquee var(--ticker-speed) linear infinite;
+}
+.ticker-track:hover { animation-play-state: paused; }
+@keyframes marquee {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(50%); }
+}
+.ticker-item {
+    display: flex;
+    align-items: center;
+    padding: 0 30px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: white;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+.ticker-item:hover { opacity: 0.8; }
+.ticker-time {
+    background: rgba(0,0,0,0.22);
+    padding: 2px 9px;
+    border-radius: 20px;
+    margin-left: 10px;
+    font-size: 0.82rem;
+    font-weight: 400;
+}
+.separator { font-size: 1.2rem; opacity: 0.35; }
+#status-msg { padding: 0 20px; font-size: 0.88rem; opacity: 0.8; }
+
+/* --- 12. RESPONSIVE ---
+   הוסר: הדשבורד עבר לקנבס פיקסלים קבוע (#tv-stage, ראו סעיף 4) שמתאים את עצמו
+   לכל מסך ע"י transform:scale אחיד ב-stage_scale.js, ולכן אין יותר מסך "צר"
+   אמיתי שדורש לייאאוט נייד נפרד - וזה גם מה שגרם בעבר לאפליקציות הקיוסק
+   (Fully Kiosk / TVBro) "לפתוח כמו סלולאר" כשה-viewport שלהן נפל בטעות
+   בטווח ה-media query. --- */
+
+/* ============================================================
+   --- 13. מצב ניהול (אדמין) ---
+   כפתור המנעול + חלון העריכה שמאפשר לוועד הבית לערוך את ההודעות
+   ואת סטטוס הבניין מהמסך עצמו. ראו admin_panel.js.
+
+   הערה על מידות: כפתור המנעול יושב בתוך #tv-stage ולכן מוקטן/מוגדל
+   יחד עם הדשבורד. חלון העריכה עצמו מוצמד ל-body (מחוץ ל-#tv-stage)
+   ולכן מוצג בגודל אמיתי - כדי שיהיה קריא ונוח גם בעריכה מהטלפון.
+   ============================================================ */
+
+/* --- 13א. כפתור המנעול (ליד בוחר ערכות הצבעים) --- */
+.admin-toggle-btn {
+    position: absolute;
+    bottom: calc(var(--bar-height) + 18px);
+    right: 70px;
+    z-index: 1001;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: box-shadow 0.2s ease, transform 0.2s ease, color 0.2s ease;
+}
+.admin-toggle-btn:hover {
+    box-shadow: var(--shadow-lg);
+    transform: scale(1.05);
+    color: var(--gold);
+}
+.admin-toggle-btn .material-symbols-outlined { font-size: 21px; }
+
+/* --- 13ב. שכבת הכהות + מסגרת החלון --- */
+.admin-root {
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    display: none;
+    direction: rtl;
+    font-family: 'Heebo', system-ui, sans-serif;
+}
+.admin-root.is-open { display: block; }
+
+.admin-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
+}
+
+.admin-modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(560px, calc(100vw - 24px));
+    max-height: min(680px, calc(100vh - 24px));
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+.admin-modal-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+    flex-shrink: 0;
+}
+.admin-modal-head > .material-symbols-outlined {
+    font-size: 22px;
+    color: var(--gold);
+}
+.admin-modal-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text);
+}
+.admin-close {
+    margin-inline-start: auto;
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+}
+.admin-close:hover { background: var(--border); color: var(--text); }
+.admin-close .material-symbols-outlined { font-size: 20px; }
+
+.admin-modal-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 16px 18px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+}
+
+.admin-modal-foot {
+    flex-shrink: 0;
+    padding: 12px 18px;
+    border-top: 1px solid var(--border);
+    background: var(--surface-2);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.admin-foot-main  { display: flex; gap: 8px; }
+.admin-foot-extra {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+    border-top: 1px dashed var(--border);
+    padding-top: 10px;
+}
+
+/* --- 13ג. כפתורים --- */
+.admin-btn {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+}
+.admin-btn.admin-btn-primary {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #fff;
+}
+.admin-btn.admin-btn-primary:hover { opacity: 0.88; }
+.admin-btn.admin-btn-ghost:hover { background: var(--border); }
+
+.admin-btn-sm {
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, opacity 0.15s;
+}
+.admin-btn-sm.admin-btn-ghost:hover { background: var(--border); color: var(--text); }
+.admin-btn-sm.admin-btn-danger {
+    background: var(--red);
+    color: #fff;
+}
+.admin-btn-sm.admin-btn-danger:hover { opacity: 0.88; }
+
+.admin-icon-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s, opacity 0.15s;
+}
+.admin-icon-btn:hover:not(:disabled) { background: var(--border); color: var(--text); }
+.admin-icon-btn:disabled { opacity: 0.3; cursor: default; }
+.admin-icon-btn .material-symbols-outlined { font-size: 17px; }
+.admin-icon-btn-danger:hover:not(:disabled) {
+    background: var(--red);
+    border-color: var(--red);
+    color: #fff;
+}
+
+/* --- 13ד. מסך ההתחברות --- */
+.admin-login { padding: 10px 0 4px; }
+.admin-login-text {
+    margin: 0 0 14px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+}
+.admin-login-input { text-align: center; font-size: 1.05rem; letter-spacing: 2px; }
+.admin-login-error {
+    margin-top: 8px;
+    min-height: 18px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--red);
+    text-align: center;
+}
+
+/* --- 13ד2. שורת מצב (מאיפה התוכן שמוצג, ומתי עודכן) ---
+   זה מה שמונע את הבלבול "ערכתי ולא רואים את זה על הטלוויזיה" */
+.admin-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    background: var(--surface-2);
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.45;
+    color: var(--text-muted);
+}
+.admin-banner .material-symbols-outlined {
+    font-size: 18px;
+    color: var(--green);
+    flex-shrink: 0;
+}
+.admin-banner-warn {
+    border-color: var(--red);
+    color: var(--text);
+}
+.admin-banner-warn .material-symbols-outlined { color: var(--red); }
+
+/* --- 13ה. לשוניות --- */
+.admin-tabs {
+    display: flex;
+    gap: 6px;
+    padding: 4px;
+    margin-bottom: 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+}
+.admin-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 8px;
+    border: 1px solid transparent;
+    border-radius: var(--r-sm);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 0.86rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.admin-tab:hover { color: var(--text); }
+.admin-tab.is-active {
+    background: var(--surface);
+    border-color: var(--gold);
+    color: var(--gold);
+    box-shadow: var(--shadow-sm);
+}
+.admin-tab .material-symbols-outlined { font-size: 19px; }
+.admin-tab-count {
+    min-width: 20px;
+    padding: 1px 6px;
+    border-radius: 20px;
+    background: var(--border);
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+.admin-tab.is-active .admin-tab-count {
+    background: var(--gold);
+    color: #fff;
+}
+
+/* --- 13ו. כרטיסי העריכה --- */
+.admin-list { display: flex; flex-direction: column; gap: 12px; }
+
+.admin-empty {
+    padding: 26px 14px;
+    text-align: center;
+    font-size: 0.86rem;
+    color: var(--text-muted);
+    background: var(--surface-2);
+    border: 1px dashed var(--border);
+    border-radius: var(--r-md);
+}
+
+.admin-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-right: 4px solid var(--gold);
+    border-radius: var(--r-md);
+    padding: 12px 14px;
+    transition: border-color 0.2s;
+}
+.admin-card.is-urgent { border-right-color: var(--red); }
+
+.admin-card-head {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.admin-card-title {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--text-muted);
+}
+.admin-card-actions {
+    margin-inline-start: auto;
+    display: flex;
+    gap: 5px;
+}
+
+.admin-field { margin-bottom: 10px; }
+.admin-field:last-child { margin-bottom: 0; }
+.admin-field-label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.admin-input {
+    width: 100%;
+    padding: 9px 11px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.9rem;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.admin-input:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px var(--gold-light);
+}
+.admin-input-sm { padding: 6px 9px; font-size: 0.82rem; }
+.admin-textarea { resize: vertical; min-height: 56px; line-height: 1.45; }
+.admin-select { cursor: pointer; }
+
+.admin-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+.admin-check input { width: 16px; height: 16px; accent-color: var(--red); cursor: pointer; }
+
+.admin-add-btn {
+    width: 100%;
+    margin-top: 12px;
+    padding: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: 1px dashed var(--border);
+    border-radius: var(--r-md);
+    background: transparent;
+    color: var(--gold);
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+.admin-add-btn:hover { background: var(--surface-2); border-color: var(--gold); }
+.admin-add-btn .material-symbols-outlined { font-size: 20px; }
+
+/* --- 13ז. בוחר האייקונים --- */
+.admin-icon-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 11px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+.admin-icon-preview:hover { border-color: var(--gold); }
+.admin-icon-preview i { font-size: 17px; color: var(--gold); width: 20px; text-align: center; }
+.admin-icon-preview-label { color: var(--text-muted); font-weight: 400; font-size: 0.8rem; }
+
+.admin-icon-grid {
+    display: none;
+    grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+    gap: 6px;
+    margin-top: 8px;
+    padding: 10px;
+    max-height: 230px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+}
+.admin-icon-grid.is-open { display: grid; }
+
+.admin-icon-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 3px;
+    border: 1px solid transparent;
+    border-radius: var(--r-sm);
+    background: var(--surface-2);
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.admin-icon-cell i { font-size: 15px; }
+.admin-icon-cell:hover { border-color: var(--gold); color: var(--text); }
+.admin-icon-cell.is-selected {
+    border-color: var(--gold);
+    background: var(--gold-light);
+    color: var(--gold);
+}
+
+.admin-icon-custom {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;            /* במסך צר התווית והשדה יורדים לשתי שורות */
+    gap: 6px 8px;
+    padding-top: 8px;
+    margin-top: 2px;
+    border-top: 1px dashed var(--border);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+.admin-icon-custom .admin-input { flex: 1 1 150px; }
+
+/* --- 13ח. ייצוא, אישור ו-toast --- */
+.admin-note {
+    padding: 11px 13px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    border-right: 4px solid var(--gold);
+    border-radius: var(--r-md);
+    background: var(--surface-2);
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+}
+.admin-note strong { color: var(--text); }
+
+.admin-export-area {
+    min-height: 260px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.76rem;
+    line-height: 1.5;
+    direction: ltr;
+    text-align: left;
+    resize: vertical;
+}
+
+.admin-confirm {
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    width: min(520px, calc(100vw - 40px));
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    background: var(--surface);
+    border: 1px solid var(--red);
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-lg);
+}
+.admin-confirm-text {
+    flex: 1;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.4;
+}
+.admin-confirm-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+.admin-toast {
+    position: fixed;
+    bottom: 26px;
+    left: 50%;
+    transform: translate(-50%, 14px);
+    z-index: 6000;
+    padding: 11px 20px;
+    border-radius: 40px;
+    background: var(--text);
+    color: var(--bg);
+    font-family: 'Heebo', system-ui, sans-serif;
+    font-size: 0.86rem;
+    font-weight: 800;
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+}
+.admin-toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+.admin-toast-error {
+    background: var(--red);
+    color: #fff;
+    max-width: min(520px, calc(100vw - 32px));
+    text-align: center;
+    line-height: 1.4;
+    border-radius: var(--r-md);
+}
+
+.admin-btn:disabled {
+    opacity: 0.6;
+    cursor: progress;
+}
