@@ -16,7 +16,8 @@
   ============================================================
 */
 const BUILDING_STATUS = [
-    { icon: "trash-alt", label: "פינוי אשפה", value: "בימי ב׳",     state: "" },
+    { icon: "trash-alt", label: "פינוי אשפה", value: "בימי ב', ד', ו׳",     state: "" },
+    { icon: "leaf",      label: "פינוי גזם",  value: "בימי ב׳",     state: "" },
     { icon: "arrow-up",  label: "מעלית",      value: "תקין ✓",      state: "good" },
     { icon: "broom",     label: "ניקיון",      value: "א׳, ג׳, ו׳",  state: "" },
 ];

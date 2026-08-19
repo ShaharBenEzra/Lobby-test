@@ -43,7 +43,9 @@
         })();
     </script>
 
-    <audio id="galgalatz-audio" preload="none"></audio>
+    <!-- נגן אחד לשני המקורות (גלגלצ / מוזיקת הבית) - ראו radio_script.js.
+         preload="none" מבטיח שקובץ המוזיקה לא נטען בכלל עד שלוחצים play -->
+    <audio id="lobby-audio" preload="none"></audio>
 
     <!-- קנבס פיקסלים קבוע (1280x720) - stage_scale.js מתאים אותו לכל מסך בסקייל אחיד -->
     <div id="tv-stage">
@@ -97,15 +99,28 @@
                     </div>
 
                     <!-- ═══════════════════════════════════════════
-                         כפתור רדיו גלגלצ – כבוי כברירת מחדל, לחיצה מפעילה שידור חי
-                         radio_script.js מטפל בלוגיקת ההשמעה
+                         כפתור מוזיקה – כבוי כברירת מחדל (אין שמע עד שלוחצים).
+                         שני האייקונים בקצה בוחרים את המקור:
+                           radio         = גלגלצ, שידור חי
+                           library_music = מוזיקת הבית, הקובץ המקומי בלופ
+                         radio_script.js מטפל בלוגיקת ההשמעה ובבחירת המקור
                     ════════════════════════════════════════════ -->
-                    <div class="radio-bar" id="radio-toggle" role="button" aria-pressed="false" title="גלגלצ - שידור חי">
-                        <div class="radio-icon-wrap">
-                            <span class="material-symbols-outlined" id="radio-icon">play_arrow</span>
+                    <div class="radio-bar" id="radio-bar">
+                        <div class="radio-play" id="radio-toggle" role="button" aria-pressed="false" title="הפעל גלגלצ">
+                            <div class="radio-icon-wrap">
+                                <span class="material-symbols-outlined" id="radio-icon">play_arrow</span>
+                            </div>
+                            <span class="radio-label" id="radio-label">גלגלצ</span>
                         </div>
-                        <span class="radio-label" id="radio-label">גלגלצ</span>
                         <div class="radio-bars"><span></span><span></span><span></span></div>
+                        <div class="radio-source-switch" role="radiogroup" aria-label="בחירת מקור מוזיקה">
+                            <div class="radio-source-chip" data-source="galgalatz" role="radio" aria-checked="true" title="גלגלצ - שידור חי">
+                                <span class="material-symbols-outlined">radio</span>
+                            </div>
+                            <div class="radio-source-chip" data-source="custom" role="radio" aria-checked="false" title="מוזיקת הבית">
+                                <span class="material-symbols-outlined">library_music</span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- ההודעות נטענות מ-notices_data.js (קובץ טקסט לעריכה קלה) ע"י notices_script.js -->

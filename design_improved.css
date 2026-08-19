@@ -723,7 +723,7 @@ body.dark-mode .status-item-mini.is-active .status-icon {
     object-fit: contain;
 }
 
-/* --- 10. GALGALATZ RADIO BAR --- */
+/* --- 10. MUSIC BAR (גלגלצ / מוזיקת הבית) --- */
 .radio-bar {
     flex-shrink: 0;
     display: flex;
@@ -734,11 +734,17 @@ body.dark-mode .status-item-mini.is-active .status-icon {
     border-radius: var(--r-sm);
     padding: 6px 12px;
     margin-bottom: 10px;
-    cursor: pointer;
     user-select: none;
     transition: background 0.3s ease, border-color 0.3s ease;
 }
 .radio-bar:hover { border-color: var(--radio-teal); }
+/* רק אזור הנגינה לוחצני - כדי שלחיצה על בורר המקור לא תפעיל/תעצור השמעה */
+.radio-bar .radio-play {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
 .radio-bar .radio-icon-wrap {
     width: 30px;
     height: 30px;
@@ -764,7 +770,6 @@ body.dark-mode .status-item-mini.is-active .status-icon {
     align-items: flex-end;
     gap: 2px;
     height: 14px;
-    margin-right: auto;
 }
 .radio-bar .radio-bars span {
     width: 3px;
@@ -786,9 +791,43 @@ body.dark-mode .status-item-mini.is-active .status-icon {
 .radio-bar.is-playing .radio-bars span:nth-child(1) { animation-delay: 0s; }
 .radio-bar.is-playing .radio-bars span:nth-child(2) { animation-delay: 0.2s; }
 .radio-bar.is-playing .radio-bars span:nth-child(3) { animation-delay: 0.4s; }
+/* התחברות מחדש - האקולייזר נעצר, כדי שהבר לא יעמיד פנים שמנגן */
+.radio-bar.is-reconnecting .radio-bars span { animation: none; opacity: 0.35; }
 @keyframes radio-bounce {
     0%, 100% { height: 4px; }
     50%      { height: 14px; }
+}
+
+/* בורר המקור - נדחף לקצה השני של הבר (margin-inline-start ב-RTL = שמאלה) */
+.radio-source-switch {
+    display: flex;
+    gap: 3px;
+    margin-inline-start: auto;
+    padding: 3px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    flex-shrink: 0;
+}
+.radio-source-chip {
+    width: 28px;
+    height: 22px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-faint);
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+.radio-source-chip .material-symbols-outlined {
+    font-size: 16px;
+    color: inherit;
+}
+.radio-source-chip:hover { color: var(--radio-teal); }
+.radio-source-chip.is-selected {
+    background: var(--radio-teal);
+    color: #fff;
 }
 
 /* --- 11ב. THEME PICKER --- */

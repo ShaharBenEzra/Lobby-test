@@ -1,9 +1,15 @@
 {
-  "updatedAt": "2026-08-06T00:00:00.000Z",
+  "updatedAt": "2026-08-19T00:00:00.000Z",
   "status": [
     {
       "icon": "trash-can",
       "label": "פינוי אשפה",
+      "value": "בימי ב', ד', ו׳",
+      "state": ""
+    },
+    {
+      "icon": "leaf",
+      "label": "פינוי גזם",
       "value": "בימי ב׳",
       "state": ""
     },
