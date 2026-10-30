@@ -1,0 +1,403 @@
+/* ═══════════════════════════════════════════
+   סקין "החלמונית" - CSS משלים ל-tailwind.css (המחלקות שבמבנה ה-HTML)
+════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════
+   1. ערכות צבעים - 3 ערכות, מוגדרות ב-skin.js (themes) ונבחרות ע"י core/themes.js
+   ערוצי RGB (בלי rgb()) כדי ש-Tailwind יוכל להוסיף שקיפות: bg-card/60
+   הבסיס כהה ועמוק; צבע ההדגשה (accent) משמש רק להדגשות, גבולות
+   פעילים ואינדיקטורים ראשיים.
+════════════════════════════════════════════ */
+:root, body.theme-gold {
+    --c-canvas: 9 9 11;        /* zinc-950 */
+    --c-card:   24 24 27;      /* zinc-900 */
+    --c-raise:  39 39 42;      /* zinc-800 */
+    --c-line:   48 48 54;
+    --c-ink:    244 244 245;
+    --c-muted:  161 161 170;
+    --c-faint:  113 113 122;
+    --c-accent: 212 168 75;    /* זהב */
+    --c-good:   52 211 153;
+    --c-warn:   251 191 36;
+    --c-bad:    251 113 133;
+}
+/* גרפיט וליים - פחם ניטרלי עם הדגשה בירוק-ליים חשמלי */
+body.theme-lime {
+    --c-canvas: 10 11 10;
+    --c-card:   22 24 22;
+    --c-raise:  35 38 35;
+    --c-line:   48 52 47;
+    --c-ink:    242 245 240;
+    --c-muted:  156 163 152;
+    --c-faint:  108 115 104;
+    --c-accent: 190 242 100;
+    --c-good:   45 212 191;
+}
+/* חול וטרקוטה - קרם חמים עם הדגשה בכתום שרוף, רך לעין באור יום (ערכה בהירה) */
+body.theme-sand {
+    --c-canvas: 244 239 229;
+    --c-card:   255 252 246;
+    --c-raise:  240 233 220;
+    --c-line:   222 211 192;
+    --c-ink:    41 35 28;
+    --c-muted:  107 96 82;
+    --c-faint:  140 128 112;
+    --c-accent: 186 82 44;
+    --c-good:   22 120 70;
+    --c-warn:   150 100 0;
+    --c-bad:    200 40 40;
+}
+
+/* משתנים בשמות הישנים - חלון הניהול (CSS בסוף הקובץ) נשען עליהם */
+:root, body {
+    --gold:        rgb(var(--c-accent));
+    --gold-light:  rgb(var(--c-accent) / 0.14);
+    --gold-dim:    rgb(var(--c-accent));
+    --blue:        rgb(var(--c-muted));
+    --blue-light:  rgb(var(--c-raise));
+    --green:       rgb(var(--c-good));
+    --green-light: rgb(var(--c-good) / 0.12);
+    --red:         rgb(var(--c-bad));
+    --bg:          rgb(var(--c-canvas));
+    --surface:     rgb(var(--c-card));
+    --surface-2:   rgb(var(--c-raise));
+    --border:      rgb(var(--c-line));
+    --text:        rgb(var(--c-ink));
+    --text-muted:  rgb(var(--c-muted));
+    --text-faint:  rgb(var(--c-faint));
+    --r-sm: 12px;
+    --r-md: 16px;
+    --r-lg: 24px;
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.12);
+    --shadow-md: 0 10px 30px rgba(0,0,0,0.25);
+    --shadow-lg: 0 24px 60px rgba(0,0,0,0.45);
+    --bar-height: 48px;
+}
+
+/* ═══════════════════════════════════════════
+   2. בסיס + קנבס 1280x720 (stage_scale.js)
+════════════════════════════════════════════ */
+html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+    background: rgb(var(--c-canvas));
+    color: rgb(var(--c-ink));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+#tv-stage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1280px;
+    height: 720px;
+    transform-origin: 0 0;
+    overflow: hidden;
+    /* תאורת אווירה עדינה בצבע ההדגשה */
+    background:
+        radial-gradient(900px 500px at 100% -10%, rgb(var(--c-accent) / 0.10), transparent 60%),
+        radial-gradient(700px 500px at -10% 110%, rgb(var(--c-accent) / 0.06), transparent 60%),
+        rgb(var(--c-canvas));
+}
+.tabular { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1, "cv11" 1; }
+
+.glass {
+    background: rgb(var(--c-card) / 0.6);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgb(var(--c-line) / 0.8);
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.4), inset 0 1px 0 rgb(255 255 255 / 0.03);
+}
+body:not(.dark-mode) .glass {
+    background: rgb(var(--c-card) / 0.85);
+    box-shadow: 0 20px 40px -16px rgb(15 23 42 / 0.18);
+}
+
+/* אייקון בריבוע רך */
+.icon-tile {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    border-radius: 12px;
+    transition: all 300ms ease;
+}
+
+/* ═══════════════════════════════════════════
+   3. הודעות ועד בית - גלילה אוטומטית רק כשיש גלישה
+════════════════════════════════════════════ */
+.notices-track {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.notices-track.is-scrolling {
+    animation: notices-scroll linear infinite;
+    animation-duration: var(--notices-scroll-duration, 20s);
+}
+.notices-track.is-scrolling:hover { animation-play-state: paused; }
+@keyframes notices-scroll {
+    0%   { transform: translateY(0); }
+    100% { transform: translateY(-50%); }
+}
+#notices-list.has-scroll {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 22px), transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 22px), transparent 100%);
+}
+
+/* ═══════════════════════════════════════════
+   4. נגן המוזיקה - radio_script.js מחליף רק classes
+      (האייקון הטקסטואלי #radio-icon מוסתר; play/pause מוחלפים ב-CSS)
+════════════════════════════════════════════ */
+.radio-bar .ico-pause { display: none; }
+.radio-bar.is-playing .ico-play { display: none; }
+.radio-bar.is-playing .ico-pause { display: block; }
+.radio-bar.is-playing {
+    border-color: rgb(var(--c-accent) / 0.45);
+    background: rgb(var(--c-accent) / 0.06);
+}
+.radio-bar.is-playing .radio-icon-wrap {
+    background: rgb(var(--c-accent));
+    border-color: rgb(var(--c-accent));
+    color: rgb(var(--c-canvas));
+    box-shadow: 0 0 0 4px rgb(var(--c-accent) / 0.15);
+}
+.radio-bars span {
+    width: 3px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgb(var(--c-accent));
+    opacity: 0.3;
+}
+.radio-bar.is-playing .radio-bars span {
+    opacity: 1;
+    animation: radio-bounce 0.9s ease-in-out infinite;
+}
+.radio-bar.is-playing .radio-bars span:nth-child(2) { animation-delay: 0.2s; }
+.radio-bar.is-playing .radio-bars span:nth-child(3) { animation-delay: 0.4s; }
+.radio-bar.is-playing .radio-bars span:nth-child(4) { animation-delay: 0.1s; }
+.radio-bar.is-reconnecting .radio-bars span { animation: none; opacity: 0.3; }
+.radio-bar.is-reconnecting #radio-label { color: rgb(var(--c-warn)); }
+@keyframes radio-bounce {
+    0%, 100% { height: 4px; }
+    50%      { height: 14px; }
+}
+.radio-source-chip.is-selected {
+    background: rgb(var(--c-accent) / 0.16);
+    color: rgb(var(--c-accent));
+    box-shadow: inset 0 0 0 1px rgb(var(--c-accent) / 0.35);
+}
+
+/* ═══════════════════════════════════════════
+   5. חלון התמונה (core/side_image.js)
+════════════════════════════════════════════ */
+.side-image-window { display: none; }
+.side-image-window.is-visible { display: flex; }
+.side-image-window img { max-width: 100%; max-height: 100%; object-fit: contain; }
+#image-toggle-btn .ico-hide { display: none; }
+#image-toggle-btn.is-on .ico-show { display: none; }
+#image-toggle-btn.is-on .ico-hide { display: block; }
+#image-toggle-btn.is-on {
+    color: rgb(var(--c-accent));
+    border-color: rgb(var(--c-accent) / 0.4);
+    background: rgb(var(--c-accent) / 0.1);
+}
+#image-toggle-btn.is-locked { opacity: 0.45; cursor: default; }
+
+/* ═══════════════════════════════════════════
+   6. בר החדשות - core/news.js בונה .ticker-item / .ticker-time / .separator
+════════════════════════════════════════════ */
+.ticker-container {
+    -webkit-mask-image: linear-gradient(to left, transparent 0, #000 40px, #000 calc(100% - 64px), transparent 100%);
+    mask-image: linear-gradient(to left, transparent 0, #000 40px, #000 calc(100% - 64px), transparent 100%);
+}
+.ticker-track {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    animation: marquee var(--ticker-speed, 180s) linear infinite;
+    will-change: transform;
+}
+.ticker-track:hover { animation-play-state: paused; }
+@keyframes marquee {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(50%); }
+}
+.ticker-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 24px;
+    color: rgb(var(--c-ink) / 0.9);
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 300ms ease;
+}
+.ticker-item:hover { color: rgb(var(--c-accent)); }
+.ticker-time {
+    font-family: Inter, sans-serif;
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgb(var(--c-muted));
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgb(var(--c-ink) / 0.05);
+    border: 1px solid rgb(var(--c-line) / 0.8);
+}
+.separator {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgb(var(--c-faint) / 0.6);
+    font-size: 0;
+    flex-shrink: 0;
+}
+#status-msg { padding: 0 20px; font-size: 13px; color: rgb(var(--c-muted)); }
+#status-msg:empty { display: none; }
+.live-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: inherit;
+    animation: live-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+@keyframes live-ping {
+    75%, 100% { transform: scale(2.4); opacity: 0; }
+}
+
+/* ═══════════════════════════════════════════
+   7. בוחר ערכת צבעים
+════════════════════════════════════════════ */
+#theme-picker-panel {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px) scale(0.97);
+    transform-origin: top left;
+    transition: opacity 250ms ease, transform 250ms cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0s linear 250ms;
+}
+#theme-picker-panel.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    transition: opacity 250ms ease, transform 250ms cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0s;
+}
+.theme-radio {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1.5px solid rgb(var(--c-line));
+    display: grid;
+    place-items: center;
+    transition: all 300ms ease;
+}
+.theme-radio::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgb(var(--c-accent));
+    transform: scale(0);
+    transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.theme-swatch-row.is-selected .theme-radio {
+    border-color: rgb(var(--c-accent));
+    box-shadow: 0 0 0 4px rgb(var(--c-accent) / 0.15);
+}
+.theme-swatch-row.is-selected .theme-radio::after { transform: scale(1); }
+.theme-swatch-row.is-selected {
+    background: rgb(var(--c-ink) / 0.05);
+    border-color: rgb(var(--c-accent) / 0.35);
+}
+
+/* ═══════════════════════════════════════════
+   7ב. קודי QR - קוד אחד: שורה אופקית; 2-3 קודים: אריחים זה לצד זה
+════════════════════════════════════════════ */
+.qr-grid { display: grid; gap: 10px; }
+.qr-tile {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px;
+    border-radius: 12px;
+    border: 1px solid rgb(var(--c-line) / 0.8);
+    background: rgb(var(--c-ink) / 0.03);
+    transition: all 300ms ease;
+}
+.qr-tile:hover { border-color: rgb(var(--c-accent) / 0.4); }
+.qr-img {
+    flex-shrink: 0;
+    padding: 5px;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3);
+}
+.qr-img img, .qr-img svg { display: block; width: 52px; height: 52px; }
+.qr-label { font-size: 14px; font-weight: 600; color: rgb(var(--c-ink)); line-height: 1.3; }
+.qr-sub {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 2px;
+    font-size: 12px;
+    color: rgb(var(--c-muted));
+}
+.qr-sub svg { width: 13px; height: 13px; }
+/* כמה קודים - אריח אנכי וקומפקטי */
+.qr-grid.is-multi .qr-tile {
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px 6px 9px;
+    text-align: center;
+}
+.qr-grid.is-multi .qr-label {
+    font-size: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.qr-grid.is-multi .qr-sub { display: none; }
+
+/* ═══════════════════════════════════════════
+   7ג. "בעוד X ימים" במועדים ו"היום" / "מחר" בסטטוס הבניין
+════════════════════════════════════════════ */
+.days-chip.is-soon {
+    color: rgb(var(--c-accent));
+    border-color: rgb(var(--c-accent) / 0.35);
+    background: rgb(var(--c-accent) / 0.08);
+}
+.status-when {
+    flex-shrink: 0;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgb(var(--c-accent));
+    background: rgb(var(--c-accent) / 0.1);
+    border: 1px solid rgb(var(--c-accent) / 0.25);
+}
+.status-when.is-tomorrow {
+    color: rgb(var(--c-muted));
+    background: transparent;
+    border-color: rgb(var(--c-line) / 0.8);
+}
+
+/* ═══════════════════════════════════════════
+   8. כפתור המנעול (admin_panel.js מחווט את #admin-btn)
+════════════════════════════════════════════ */
+body.admin-open #tv-stage { filter: blur(2px); }
+
+/* ═══════════════════════════════════════════
+   9. חלון הניהול (core/admin.css) - התאמות לסקין: זכוכית וגופנים
+════════════════════════════════════════════ */
+.admin-modal {
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 40px 80px -20px rgb(0 0 0 / 0.6) !important;
+}
+.admin-root, .admin-root * { font-family: Inter, Heebo, system-ui, sans-serif; }
+.admin-root .material-symbols-outlined { font-family: "Material Symbols Outlined"; }
+.admin-root .fas { font-family: "Font Awesome 6 Free"; }

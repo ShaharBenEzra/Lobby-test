@@ -63,8 +63,8 @@ body.dark-mode {
     --radio-teal-dim:#8fc1de;
 }
 
-/* --- 2ב. פלטות צבעים - נבחרות ע"י theme_picker.js שמוסיף class ל-body:
-       theme-royal / theme-gold / theme-bordeaux / theme-petrol / theme-day
+/* --- 2ב. פלטות צבעים - 3 ערכות, מוגדרות ב-skin.js (themes) ונבחרות ע"י
+       core/themes.js שמוסיף class ל-body: theme-gold / theme-royal / theme-day
 
        כל פלטה מגדירה סט מלא של משתנים, ולכן ה-:root שלמעלה משמש רק כבסיס
        (אם משום מה לא הוחל אף class). לכל פלטה יש גרסה בהירה וגרסה כהה,
@@ -144,80 +144,8 @@ body.dark-mode.theme-gold {
     --radio-teal-dim:#f0c080;
 }
 
-/* בורדו - יין עמוק עם ורוד-זהב. חמים ויוקרתי */
-body.theme-bordeaux {
-    --gold:          #8e2f45;
-    --gold-light:    #fbeaee;
-    --gold-dim:      #6a1f31;
-    --blue:          #a8763f;
-    --blue-light:    #f9f0e4;
-    --bg:            #f5eff1;
-    --surface-2:     #faf5f6;
-    --border:        #e8dce0;
-    --text:          #22161a;
-    --text-muted:    #857176;
-    --text-faint:    #b8a5aa;
-    --radio-teal:    #8e2f45;
-    --radio-teal-dim:#6a1f31;
-}
-body.dark-mode.theme-bordeaux {
-    --bg:            #150c10;
-    --surface:       #1f1319;
-    --surface-2:     #2a1a21;
-    --border:        #3d2731;
-    --text:          #f3e7ea;
-    --text-muted:    #b08f99;
-    --text-faint:    #6b4a55;
-    --gold:          #e58ba2;
-    --gold-light:    #3a1c25;
-    --gold-dim:      #f4bcca;
-    --blue:          #d9a066;
-    --blue-light:    #3a2a16;
-    --green:         #4fd39c;
-    --red:           #ff8a8a;
-    --radio-teal:    #e58ba2;
-    --radio-teal-dim:#f4bcca;
-    --ynet-red:      #7a1f28;
-}
-
-/* פטרול - טורקיז-כחול עמוק עם נחושת. מודרני ובולט */
-body.theme-petrol {
-    --gold:          #10697a;
-    --gold-light:    #e2f2f5;
-    --gold-dim:      #0a4a57;
-    --blue:          #b5703a;
-    --blue-light:    #fbf0e6;
-    --bg:            #edf4f5;
-    --surface-2:     #f5fafb;
-    --border:        #d8e6e9;
-    --text:          #112225;
-    --text-muted:    #647b80;
-    --text-faint:    #a2b6ba;
-    --radio-teal:    #10697a;
-    --radio-teal-dim:#0a4a57;
-}
-body.dark-mode.theme-petrol {
-    --bg:            #07171b;
-    --surface:       #0e2329;
-    --surface-2:     #143038;
-    --border:        #1f4550;
-    --text:          #e3f2f5;
-    --text-muted:    #85a7af;
-    --text-faint:    #456068;
-    --gold:          #35c4d8;
-    --gold-light:    #0c313a;
-    --gold-dim:      #7fdcea;
-    --blue:          #e2a367;
-    --blue-light:    #35240f;
-    --green:         #3ed6a5;
-    --red:           #ff7f7f;
-    --radio-teal:    #35c4d8;
-    --radio-teal-dim:#7fdcea;
-    --ynet-red:      #8a2026;
-}
-
 /* מצב יום - שמש חזקה: רקע בהיר וניגודיות גבוהה לקריאות במסך שטוף שמש.
-   ערכה זו תמיד בהירה - theme_picker.js מסיר את class="dark-mode" כשהיא נבחרת */
+   ערכה זו תמיד בהירה - core/dashboard.js מסיר את class="dark-mode" כשהיא נבחרת */
 body.theme-day {
     --gold:          #d97706;
     --gold-light:    #fef3c7;
@@ -441,7 +369,7 @@ body.dark-mode .date-chip {
     color: var(--gold);
 }
 
-/* כפתור הצג/הסתר לחלון התמונה - ראו side_image_script.js */
+/* כפתור הצג/הסתר לחלון התמונה - ראו core/side_image.js */
 .image-toggle-btn {
     margin-inline-start: auto;
     width: 28px;
@@ -481,7 +409,7 @@ body.dark-mode .date-chip {
     overflow: hidden;
 }
 
-/* notices_script.js מפעיל גלילה רק אם התוכן בפועל לא נכנס בגובה הזמין -
+/* core/notices.js מפעיל גלילה רק אם התוכן בפועל לא נכנס בגובה הזמין -
    כך שעם 3-4 הודעות קצרות זה נשאר סטטי, ורק אם מוסיפים עוד הודעות זה
    עובר אוטומטית לגלילה רציפה (במהירות קבועה - לא צריך לכייל שוב ידנית) */
 .notices-track {
@@ -530,14 +458,23 @@ body.dark-mode .notice-item h3 { color: var(--gold); }
 }
 
 /* QR codes */
+/* 1 עד 3 קודים (core/qr.js), לפי data-count. קוד אחד: הכיתוב מעל התמונה;
+   כמה קודים: התמונות בשורה אחת למעלה והכיתובים מתחתן, כדי שכיתוב של
+   שתי שורות לא יזיז את התמונה שלידו */
 .qr-container-mini {
     display: flex;
     justify-content: center;
+    align-items: flex-start;
+    gap: 14px;
     padding-top: 10px;
     margin-top: auto;
     border-top: 1px solid var(--border);
     flex-shrink: 0;
 }
+.qr-container-mini:not([data-count="1"]) .qr-item { flex: 1; flex-direction: column-reverse; }
+.qr-container-mini:not([data-count="1"]) .qr-label { text-align: center; line-height: 1.25; }
+.qr-container-mini[data-count="3"] .qr-img { width: 72px; height: 72px; }
+.qr-container-mini[data-count="3"] .qr-label { font-size: 0.72rem; }
 .qr-item {
     display: flex;
     flex-direction: column;
@@ -549,14 +486,17 @@ body.dark-mode .notice-item h3 { color: var(--gold); }
     font-weight: 800;
     color: var(--text-muted);
 }
-.qr-item img {
+.qr-img {
     width: 80px;
     height: 80px;
     padding: 4px;
     background: white;
     border: 1px solid var(--border);
     border-radius: var(--r-sm);
+    flex-shrink: 0;
 }
+.qr-img img,
+.qr-img svg { display: block; width: 100%; height: 100%; }
 
 /* --- 8. EVENTS --- */
 .shabbat-times { flex-shrink: 0; }
@@ -633,6 +573,9 @@ body.dark-mode .event-date { color: #7ab0e8; }
 .event-date .month { font-size: 0.72rem; margin-top: 2px; }
 .event-info h4     { margin: 0 0 2px 0; color: var(--text); font-size: 0.9rem; font-weight: 700; }
 .event-info p      { margin: 0; color: var(--text-faint); font-size: 0.78rem; }
+.event-info p.is-soon { color: var(--gold); font-weight: 700; }
+/* "טוען..." / "אין מועדים קרובים" / שגיאה */
+.panel-empty { margin: 0; padding: 10px; color: var(--text-muted); font-size: 0.85rem; }
 
 /* --- 9. BUILDING STATUS --- */
 .status-column-wrapper {
@@ -701,9 +644,24 @@ body.dark-mode .status-item-mini.is-active .status-icon {
     font-weight: 700;
 }
 
-/* חלון תמונה נפרד מתחת לסטטוס בניין - ראו side_image_data.js.
+/* "היום" / "מחר" - לפי ימי השבוע שבטקסט (core/status.js) */
+.status-info { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.status-when {
+    align-self: flex-start;
+    margin-top: 4px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--gold);
+    background: var(--gold-light);
+}
+.status-when.is-tomorrow { color: var(--text-muted); background: var(--surface); font-weight: 700; }
+.status-item-mini.is-today { border-right-color: var(--gold); }
+
+/* חלון תמונה נפרד מתחת לסטטוס בניין - ראו sideImage ב-sites/<בניין>/site.js.
    מוסתר כברירת מחדל - מוצג רק כשמפעילים אותו עם הכפתור בכותרת (image-toggle-btn),
-   side_image_script.js שומר את המצב ב-localStorage. */
+   core/side_image.js שומר את המצב ב-localStorage. */
 .side-image-window {
     display: none;
     flex: 1;
@@ -993,11 +951,14 @@ body.dark-mode .status-item-mini.is-active .status-icon {
    ולכן מוצג בגודל אמיתי - כדי שיהיה קריא ונוח גם בעריכה מהטלפון.
    ============================================================ */
 
-/* --- 13א. כפתור המנעול (ליד בוחר ערכות הצבעים) --- */
+/* --- 13א. כפתור המנעול (מעל בוחר ערכות הצבעים) --- */
+/* מוערם מעל כפתור הצבעים ולא לצידו: לצידו הוא גלש על קודי ה-QR.
+   18px (מיקום כפתור הצבעים) + 42px (גובהו) + 10px רווח = 70px.
+   כשפאנל הצבעים פתוח הוא מכסה את המנעול - ל-panel יש z-index גבוה יותר. */
 .admin-toggle-btn {
     position: absolute;
-    bottom: calc(var(--bar-height) + 18px);
-    right: 70px;
+    bottom: calc(var(--bar-height) + 70px);
+    right: 18px;
     z-index: 1001;
     width: 42px;
     height: 42px;
@@ -1019,567 +980,3 @@ body.dark-mode .status-item-mini.is-active .status-icon {
 }
 .admin-toggle-btn .material-symbols-outlined { font-size: 21px; }
 
-/* --- 13ב. שכבת הכהות + מסגרת החלון --- */
-.admin-root {
-    position: fixed;
-    inset: 0;
-    z-index: 5000;
-    display: none;
-    direction: rtl;
-    font-family: 'Heebo', system-ui, sans-serif;
-}
-.admin-root.is-open { display: block; }
-
-.admin-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.55);
-    backdrop-filter: blur(2px);
-}
-
-.admin-modal {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: min(560px, calc(100vw - 24px));
-    max-height: min(680px, calc(100vh - 24px));
-    display: flex;
-    flex-direction: column;
-    background: var(--surface);
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    box-shadow: var(--shadow-lg);
-    overflow: hidden;
-}
-
-.admin-modal-head {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 14px 18px;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface-2);
-    flex-shrink: 0;
-}
-.admin-modal-head > .material-symbols-outlined {
-    font-size: 22px;
-    color: var(--gold);
-}
-.admin-modal-title {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 800;
-    color: var(--text);
-}
-.admin-close {
-    margin-inline-start: auto;
-    width: 30px;
-    height: 30px;
-    border: none;
-    border-radius: 50%;
-    background: transparent;
-    color: var(--text-muted);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.15s, color 0.15s;
-}
-.admin-close:hover { background: var(--border); color: var(--text); }
-.admin-close .material-symbols-outlined { font-size: 20px; }
-
-.admin-modal-body {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    padding: 16px 18px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
-}
-
-.admin-modal-foot {
-    flex-shrink: 0;
-    padding: 12px 18px;
-    border-top: 1px solid var(--border);
-    background: var(--surface-2);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.admin-foot-main  { display: flex; gap: 8px; }
-.admin-foot-extra {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-    justify-content: center;
-    border-top: 1px dashed var(--border);
-    padding-top: 10px;
-}
-
-/* --- 13ג. כפתורים --- */
-.admin-btn {
-    flex: 1;
-    padding: 10px 14px;
-    border: 1px solid var(--border);
-    border-radius: var(--r-sm);
-    background: var(--surface);
-    color: var(--text);
-    font-family: inherit;
-    font-size: 0.9rem;
-    font-weight: 800;
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s, opacity 0.15s;
-}
-.admin-btn.admin-btn-primary {
-    background: var(--gold);
-    border-color: var(--gold);
-    color: #fff;
-}
-.admin-btn.admin-btn-primary:hover { opacity: 0.88; }
-.admin-btn.admin-btn-ghost:hover { background: var(--border); }
-
-.admin-btn-sm {
-    border: 1px solid transparent;
-    background: transparent;
-    color: var(--text-muted);
-    font-family: inherit;
-    font-size: 0.78rem;
-    font-weight: 700;
-    padding: 5px 10px;
-    border-radius: var(--r-sm);
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s, opacity 0.15s;
-}
-.admin-btn-sm.admin-btn-ghost:hover { background: var(--border); color: var(--text); }
-.admin-btn-sm.admin-btn-danger {
-    background: var(--red);
-    color: #fff;
-}
-.admin-btn-sm.admin-btn-danger:hover { opacity: 0.88; }
-
-.admin-icon-btn {
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text-muted);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.15s, color 0.15s, opacity 0.15s;
-}
-.admin-icon-btn:hover:not(:disabled) { background: var(--border); color: var(--text); }
-.admin-icon-btn:disabled { opacity: 0.3; cursor: default; }
-.admin-icon-btn .material-symbols-outlined { font-size: 17px; }
-.admin-icon-btn-danger:hover:not(:disabled) {
-    background: var(--red);
-    border-color: var(--red);
-    color: #fff;
-}
-
-/* --- 13ד. מסך ההתחברות --- */
-.admin-login { padding: 10px 0 4px; }
-.admin-login-text {
-    margin: 0 0 14px;
-    font-size: 0.88rem;
-    line-height: 1.5;
-    color: var(--text-muted);
-}
-.admin-login-input { text-align: center; font-size: 1.05rem; letter-spacing: 2px; }
-.admin-login-error {
-    margin-top: 8px;
-    min-height: 18px;
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: var(--red);
-    text-align: center;
-}
-
-/* --- 13ד1. אבחון הגדרות במסך ההתחברות ---
-   אומר בדיוק באיזה שלב ההגדרה נתקעה (פונקציה לא פרוסה / חסר משתנה
-   סביבה / אין רשת), במקום להשאיר את המשתמש לנחש */
-.admin-diag-link {
-    display: block;
-    margin: 4px auto 0;
-    padding: 4px 8px;
-    border: none;
-    background: none;
-    color: var(--gold);
-    font-family: inherit;
-    font-size: 0.78rem;
-    font-weight: 700;
-    text-decoration: underline;
-    cursor: pointer;
-}
-.admin-diag {
-    display: none;
-    margin-top: 10px;
-    padding: 10px 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    background: var(--surface-2);
-    font-size: 0.78rem;
-    line-height: 1.45;
-}
-.admin-diag.is-open { display: block; }
-.admin-diag-line {
-    display: flex;
-    align-items: flex-start;
-    gap: 7px;
-    font-weight: 700;
-    color: var(--text);
-}
-.admin-diag-line .material-symbols-outlined { font-size: 17px; flex-shrink: 0; }
-.admin-diag-ok  .material-symbols-outlined { color: var(--green); }
-.admin-diag-bad .material-symbols-outlined { color: var(--red); }
-.admin-diag-hint {
-    margin-top: 8px;
-    padding-top: 8px;
-    border-top: 1px dashed var(--border);
-    color: var(--text-muted);
-    font-weight: 400;
-}
-.admin-diag-hint strong { color: var(--text); font-weight: 800; }
-
-/* --- 13ד2. שורת מצב (מאיפה התוכן שמוצג, ומתי עודכן) ---
-   זה מה שמונע את הבלבול "ערכתי ולא רואים את זה על הטלוויזיה" */
-.admin-banner {
-    display: flex;
-    align-items: flex-start;
-    gap: 9px;
-    padding: 10px 12px;
-    margin-bottom: 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    background: var(--surface-2);
-    font-size: 0.78rem;
-    font-weight: 700;
-    line-height: 1.45;
-    color: var(--text-muted);
-}
-.admin-banner .material-symbols-outlined {
-    font-size: 18px;
-    color: var(--green);
-    flex-shrink: 0;
-}
-.admin-banner-warn {
-    border-color: var(--red);
-    color: var(--text);
-}
-.admin-banner-warn .material-symbols-outlined { color: var(--red); }
-
-/* --- 13ה. לשוניות --- */
-.admin-tabs {
-    display: flex;
-    gap: 6px;
-    padding: 4px;
-    margin-bottom: 14px;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-}
-.admin-tab {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 9px 8px;
-    border: 1px solid transparent;
-    border-radius: var(--r-sm);
-    background: transparent;
-    color: var(--text-muted);
-    font-family: inherit;
-    font-size: 0.86rem;
-    font-weight: 800;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
-}
-.admin-tab:hover { color: var(--text); }
-.admin-tab.is-active {
-    background: var(--surface);
-    border-color: var(--gold);
-    color: var(--gold);
-    box-shadow: var(--shadow-sm);
-}
-.admin-tab .material-symbols-outlined { font-size: 19px; }
-.admin-tab-count {
-    min-width: 20px;
-    padding: 1px 6px;
-    border-radius: 20px;
-    background: var(--border);
-    color: var(--text-muted);
-    font-size: 0.72rem;
-    font-weight: 800;
-}
-.admin-tab.is-active .admin-tab-count {
-    background: var(--gold);
-    color: #fff;
-}
-
-/* --- 13ו. כרטיסי העריכה --- */
-.admin-list { display: flex; flex-direction: column; gap: 12px; }
-
-.admin-empty {
-    padding: 26px 14px;
-    text-align: center;
-    font-size: 0.86rem;
-    color: var(--text-muted);
-    background: var(--surface-2);
-    border: 1px dashed var(--border);
-    border-radius: var(--r-md);
-}
-
-.admin-card {
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-right: 4px solid var(--gold);
-    border-radius: var(--r-md);
-    padding: 12px 14px;
-    transition: border-color 0.2s;
-}
-.admin-card.is-urgent { border-right-color: var(--red); }
-
-.admin-card-head {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-}
-.admin-card-title {
-    font-size: 0.8rem;
-    font-weight: 800;
-    color: var(--text-muted);
-}
-.admin-card-actions {
-    margin-inline-start: auto;
-    display: flex;
-    gap: 5px;
-}
-
-.admin-field { margin-bottom: 10px; }
-.admin-field:last-child { margin-bottom: 0; }
-.admin-field-label {
-    display: block;
-    margin-bottom: 4px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--text-muted);
-}
-
-.admin-input {
-    width: 100%;
-    padding: 9px 11px;
-    border: 1px solid var(--border);
-    border-radius: var(--r-sm);
-    background: var(--surface);
-    color: var(--text);
-    font-family: inherit;
-    font-size: 0.9rem;
-    transition: border-color 0.15s, box-shadow 0.15s;
-}
-.admin-input:focus {
-    outline: none;
-    border-color: var(--gold);
-    box-shadow: 0 0 0 3px var(--gold-light);
-}
-.admin-input-sm { padding: 6px 9px; font-size: 0.82rem; }
-.admin-textarea { resize: vertical; min-height: 56px; line-height: 1.45; }
-.admin-select { cursor: pointer; }
-
-.admin-check {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 10px;
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    cursor: pointer;
-}
-.admin-check input { width: 16px; height: 16px; accent-color: var(--red); cursor: pointer; }
-
-.admin-add-btn {
-    width: 100%;
-    margin-top: 12px;
-    padding: 11px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    border: 1px dashed var(--border);
-    border-radius: var(--r-md);
-    background: transparent;
-    color: var(--gold);
-    font-family: inherit;
-    font-size: 0.88rem;
-    font-weight: 800;
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
-}
-.admin-add-btn:hover { background: var(--surface-2); border-color: var(--gold); }
-.admin-add-btn .material-symbols-outlined { font-size: 20px; }
-
-/* --- 13ז. בוחר האייקונים --- */
-.admin-icon-preview {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    padding: 8px 11px;
-    border: 1px solid var(--border);
-    border-radius: var(--r-sm);
-    background: var(--surface);
-    color: var(--text);
-    font-family: inherit;
-    font-size: 0.85rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: border-color 0.15s;
-}
-.admin-icon-preview:hover { border-color: var(--gold); }
-.admin-icon-preview i { font-size: 17px; color: var(--gold); width: 20px; text-align: center; }
-.admin-icon-preview-label { color: var(--text-muted); font-weight: 400; font-size: 0.8rem; }
-
-.admin-icon-grid {
-    display: none;
-    grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
-    gap: 6px;
-    margin-top: 8px;
-    padding: 10px;
-    max-height: 230px;
-    overflow-y: auto;
-    border: 1px solid var(--border);
-    border-radius: var(--r-sm);
-    background: var(--surface);
-    scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
-}
-.admin-icon-grid.is-open { display: grid; }
-
-.admin-icon-cell {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    padding: 8px 3px;
-    border: 1px solid transparent;
-    border-radius: var(--r-sm);
-    background: var(--surface-2);
-    color: var(--text-muted);
-    font-family: inherit;
-    font-size: 0.65rem;
-    font-weight: 700;
-    text-align: center;
-    line-height: 1.2;
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s, color 0.15s;
-}
-.admin-icon-cell i { font-size: 15px; }
-.admin-icon-cell:hover { border-color: var(--gold); color: var(--text); }
-.admin-icon-cell.is-selected {
-    border-color: var(--gold);
-    background: var(--gold-light);
-    color: var(--gold);
-}
-
-.admin-icon-custom {
-    grid-column: 1 / -1;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;            /* במסך צר התווית והשדה יורדים לשתי שורות */
-    gap: 6px 8px;
-    padding-top: 8px;
-    margin-top: 2px;
-    border-top: 1px dashed var(--border);
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: var(--text-muted);
-}
-.admin-icon-custom .admin-input { flex: 1 1 150px; }
-
-/* --- 13ח. ייצוא, אישור ו-toast --- */
-.admin-note {
-    padding: 11px 13px;
-    margin-bottom: 12px;
-    border: 1px solid var(--border);
-    border-right: 4px solid var(--gold);
-    border-radius: var(--r-md);
-    background: var(--surface-2);
-    font-size: 0.82rem;
-    line-height: 1.5;
-    color: var(--text-muted);
-}
-.admin-note strong { color: var(--text); }
-
-.admin-export-area {
-    min-height: 260px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.76rem;
-    line-height: 1.5;
-    direction: ltr;
-    text-align: left;
-    resize: vertical;
-}
-
-.admin-confirm {
-    position: absolute;
-    bottom: 18px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10;
-    width: min(520px, calc(100vw - 40px));
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 11px 14px;
-    background: var(--surface);
-    border: 1px solid var(--red);
-    border-radius: var(--r-md);
-    box-shadow: var(--shadow-lg);
-}
-.admin-confirm-text {
-    flex: 1;
-    font-size: 0.84rem;
-    font-weight: 700;
-    color: var(--text);
-    line-height: 1.4;
-}
-.admin-confirm-actions { display: flex; gap: 6px; flex-shrink: 0; }
-
-.admin-toast {
-    position: fixed;
-    bottom: 26px;
-    left: 50%;
-    transform: translate(-50%, 14px);
-    z-index: 6000;
-    padding: 11px 20px;
-    border-radius: 40px;
-    background: var(--text);
-    color: var(--bg);
-    font-family: 'Heebo', system-ui, sans-serif;
-    font-size: 0.86rem;
-    font-weight: 800;
-    box-shadow: var(--shadow-lg);
-    opacity: 0;
-    transition: opacity 0.25s ease, transform 0.25s ease;
-    pointer-events: none;
-}
-.admin-toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
-.admin-toast-error {
-    background: var(--red);
-    color: #fff;
-    max-width: min(520px, calc(100vw - 32px));
-    text-align: center;
-    line-height: 1.4;
-    border-radius: var(--r-md);
-}
-
-.admin-btn:disabled {
-    opacity: 0.6;
-    cursor: progress;
-}

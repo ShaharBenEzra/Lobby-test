@@ -293,7 +293,9 @@
         }
 
         // כפתור אבחון: אומר בדיוק באיזה שלב ההגדרה נתקעה, במקום
-        // להשאיר את המשתמש לנחש בין "אין רשת" ל"חסר משתנה סביבה"
+        // להשאיר את המשתמש לנחש בין "אין רשת" ל"חסר משתנה סביבה".
+        // נפתח רק בלחיצה על הקישור: ניסיון כניסה מציג שורה אחת בלבד -
+        // מה שהשרת החזיר - ולא קיר טקסט עם הוראות הגדרה.
         var diagBox = el("div", "admin-diag");
 
         function showDiagnostics() {
@@ -738,7 +740,7 @@
 
     function showExport() {
         var isNotices = activeTab === "notices";
-        var fileName = isNotices ? "notices_data.js" : "building_status_data.js";
+        var fileName = "sites/" + Dashboard.site().id + "/" + (isNotices ? "notices_data.js" : "building_status_data.js");
         // מייצאים את עותק העבודה (מה שהאדמין רואה מולו כרגע)
         var content = isNotices
             ? AdminStore.exportNoticesFile(draft.notices)
@@ -751,9 +753,9 @@
         var note = el("div", "admin-note");
         note.appendChild(el("strong", null, "למה זה כאן? "));
         note.appendChild(document.createTextNode(
-            "הפרסום הרגיל מעדכן את content/" + (isNotices ? "notices.json" : "building_status.json") +
-            " וזה מה שכל המסכים קוראים. הטקסט שלמטה נועד לעדכן גם את קובץ " +
-            fileName + " - הגיבוי שנטען כשאין אינטרנט."));
+            "הפרסום הרגיל שומר באחסון של האתר, וזה מה שכל המסכים קוראים. " +
+            "הטקסט שלמטה נועד לעדכן גם את קובץ " + fileName +
+            " - ברירת המחדל שנטענת לפני הפרסום הראשון או כשאין אינטרנט."));
         if (dirty) {
             note.appendChild(document.createElement("br"));
             note.appendChild(el("strong", null,

@@ -1,5 +1,5 @@
 /*
- * Ynet_script.js
+ * news.js - בר החדשות של Ynet (היה Ynet_script.js)
  * ─────────────────────────────────────────────────────────
  * מה זה עושה:
  *   מושך כותרות חדשות מ-Ynet ומציג אותן כ-ticker רץ בתחתית המסך
@@ -17,8 +17,15 @@
  *   RSS תקין, (2) מעלים את הזמן המותר לכל מקור ל-20 שניות - במרוץ
  *   מקבילי זה לא עולה כלום, כי מקור מהיר עונה מיד ממילא.
  *
+ * עדכון (אוקטובר 2026) - "הבר לא מתעדכן":
+ *   allorigins ו-codetabs נפלו (Cloudflare 522), ולכן rss2json ניצח בכל
+ *   מרוץ - והוא מגיש עותק בן עד חצי שעה (max-age=1800). הכותרות נראו
+ *   תקועות. התיקון: פונקציית Netlify משלנו (netlify/functions/ynet.js)
+ *   שמושכת את הפיד בצד השרת, מאותו דומיין - בלי CORS ובלי צד שלישי.
+ *
  * המקורות (כולם נבדקו מול הדפדפן שהם באמת מחזירים CORS תקין):
- *   allorigins (שתי גרסאות) + codetabs → ה-RSS החי של Ynet
+ *   netlify (שלנו) → ה-RSS החי של Ynet, המקור העיקרי
+ *   allorigins (שתי גרסאות) + codetabs → גיבוי, אותו RSS חי
  *   rss2json → ספק אחר לגמרי, כגיבוי אם allorigins נופל. הוא מגיש
  *   עותק מ-cache (בערך חצי שעה מאחור), ולכן הוא יוצא לדרך רק אחרי
  *   השהיה קצרה - כדי לתת למקורות החיים צ'אנס לנצח קודם.
@@ -30,7 +37,15 @@
  *
  * תדירות עדכון: כל 10 דקות (ובכישלון - ניסיון חוזר מהיר)
  * ─────────────────────────────────────────────────────────
+ *
+ * משותף לכל הסקינים: כל סקין כולל #ticker ו-#status-msg, וה-CSS שלו מעצב
+ * את .ticker-item / .ticker-time / .ticker-title / .separator.
+ *
+ * עטוף בפונקציה כדי שהקבועים (REFRESH_MS וכו') לא יתנגשו בקבצים אחרים.
+ * ─────────────────────────────────────────────────────────
  */
+(function () {
+"use strict";
 
 const RSS_URL     = "https://www.ynet.co.il/Integration/StoryRss1854.xml";
 const STORAGE_KEY = "ynet-news-cache"; // מפתח ה-localStorage לשמירת גיבוי
@@ -45,6 +60,14 @@ const SCROLL_SPEED   = 55;              // פיקסלים לשנייה - קוב�
 // delay = כמה להמתין לפני שהמקור הזה יוצא לדרך. 0 = מיד.
 // כולם רצים במקביל, אז הסדר ברשימה לא משנה - רק ה-delay.
 const SOURCES = [
+    {
+        // הפרוקסי שלנו ב-Netlify (netlify/functions/ynet.js) - המקור העיקרי.
+        // בהרצה מקומית (file://) הוא פשוט ייכשל והאחרים ימשיכו במרוץ
+        name: "netlify", delay: 0,
+        url:  () => "/.netlify/functions/ynet",
+        read: res => res.text(),
+        parse: parseRssXml
+    },
     {
         name: "allorigins-get", delay: 0,
         url:  u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
@@ -269,8 +292,12 @@ async function fetchYnetNews() {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    // מציגים מיד את הגיבוי כדי שהבר לא יהיה ריק בזמן שהרשת עונה
-    if (loadCache()) setStatus("");
-    fetchYnetNews();
+// מציגים מיד את הגיבוי כדי שהבר לא יהיה ריק בזמן שהרשת עונה
+if (loadCache()) setStatus("");
+fetchYnetNews();
+
+// מסך קיוסק שחזר מ"שינה" מתעדכן מיד ולא מחכה למחזור הבא
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") fetchYnetNews();
 });
+})();

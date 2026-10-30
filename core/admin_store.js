@@ -14,9 +14,13 @@
 window.AdminStore = (function () {
     "use strict";
 
+    // התוכן שמור לכל בניין בנפרד - גם במכשיר וגם בשרת (?site=), כך ששני
+    // בניינים שמוצגים מאותו אתר לא דורסים זה לזה את ההודעות
+    var SITE_ID = window.Dashboard && Dashboard.site() ? Dashboard.site().id : "";
+
     var KEYS = {
-        cache: "dashboard-content-cache-v2",   // מה שנמשך מהאתר בפעם האחרונה
-        local: "dashboard-content-local-v2"    // עריכה מקומית שלא פורסמה
+        cache: "dashboard-content-cache-v3:" + SITE_ID,   // מה שנמשך מהאתר בפעם האחרונה
+        local: "dashboard-content-local-v3:" + SITE_ID    // עריכה מקומית שלא פורסמה
     };
 
     var listeners = [];
@@ -73,7 +77,7 @@ window.AdminStore = (function () {
 
     // ─────────────── ברירות מחדל מקבצי הקוד ───────────────
 
-    // אותה לוגיקת פירוק שהייתה ב-notices_script.js: שורה ראשונה = כותרת,
+    // אותה לוגיקת פירוק כמו בקובץ notices_data.js: שורה ראשונה = כותרת,
     // השאר = גוף ההודעה, "---" מפריד בין הודעות, "!" בתחילת הכותרת = דחוף.
     function parseNoticesText(text) {
         var blocks = [];
@@ -159,7 +163,8 @@ window.AdminStore = (function () {
     }
 
     function contentApi() {
-        return typeof CONTENT_API !== "undefined" && CONTENT_API ? CONTENT_API : null;
+        if (typeof CONTENT_API === "undefined" || !CONTENT_API) return null;
+        return CONTENT_API + (CONTENT_API.indexOf("?") === -1 ? "?" : "&") + "site=" + encodeURIComponent(SITE_ID);
     }
 
     function fallbackUrls() {
@@ -275,6 +280,7 @@ window.AdminStore = (function () {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 action: "save",
+                site: SITE_ID,
                 password: password,
                 notices: cleanList(notices, cleanNoticeEntry),
                 status: cleanList(status, cleanStatusEntry)
@@ -308,11 +314,16 @@ window.AdminStore = (function () {
         return fetch(ADMIN_API, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "verify", password: password })
+            body: JSON.stringify({ action: "verify", site: SITE_ID, password: password })
         }).then(function (res) {
             return res.json().catch(function () { return {}; }).then(function (data) {
                 if (res.status === 401) return { ok: false, wrongPassword: true };
                 if (res.status === 404) return { ok: false, notDeployed: true, status: 404 };
+                // 405 / 501 = שרת סטטי (הרצה מקומית / שרת שאינו Netlify) שלא מקבל POST בכלל -
+                // זה לא "חסרה הגדרה", אלא אין שרת ניהול; מטופל כמו אין תשובה (מצב מקומי)
+                if (res.status === 405 || res.status === 501) {
+                    return { ok: false, networkError: "השרת לא מריץ את פונקציית הניהול (" + res.status + ")" };
+                }
                 if (!res.ok) {
                     return {
                         ok: false,
@@ -384,9 +395,9 @@ window.AdminStore = (function () {
         return "/*\n" +
             "  ✏️  איך לערוך את ההודעות (רק טקסט - לא צריך להבין בתכנות!)\n" +
             "  ============================================================\n" +
-            "  קובץ זה הוא גיבוי בלבד: מקור האמת הוא content/notices.json,\n" +
-            "  שמתעדכן דרך פאנל הניהול. כאן נקראות ההודעות רק אם אין\n" +
-            "  אינטרנט או אם קובץ ה-JSON חסר.\n" +
+            "  קובץ זה הוא ברירת מחדל בלבד: מקור האמת הוא מה שהוועד פרסם\n" +
+            "  מפאנל הניהול. כאן נקראות ההודעות רק לפני הפרסום הראשון,\n" +
+            "  או אם אין אינטרנט ואין עותק שמור במכשיר.\n" +
             "\n" +
             "  1. כל הודעה: השורה הראשונה = כותרת, השורות שאחריה = הטקסט של ההודעה.\n" +
             "  2. בין הודעה להודעה משאירים שורה עם שלושה מקפים בלבד:  ---\n" +
@@ -410,9 +421,9 @@ window.AdminStore = (function () {
         return "/*\n" +
             "  ✏️  איך לערוך את \"סטטוס בניין\" (רק טקסט - לא צריך להבין בתכנות!)\n" +
             "  ============================================================\n" +
-            "  קובץ זה הוא גיבוי בלבד: מקור האמת הוא content/building_status.json,\n" +
-            "  שמתעדכן דרך פאנל הניהול. כאן נקרא הסטטוס רק אם אין אינטרנט\n" +
-            "  או אם קובץ ה-JSON חסר.\n" +
+            "  קובץ זה הוא ברירת מחדל בלבד: מקור האמת הוא מה שהוועד פרסם\n" +
+            "  מפאנל הניהול. כאן נקרא הסטטוס רק לפני הפרסום הראשון,\n" +
+            "  או אם אין אינטרנט ואין עותק שמור במכשיר.\n" +
             "\n" +
             "  icon  - שם אייקון מ-Font Awesome (בלי \"fa-\" בהתחלה):\n" +
             "          https://fontawesome.com/icons  (סגנון \"Solid\" - חינמי)\n" +

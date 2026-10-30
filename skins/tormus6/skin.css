@@ -1,0 +1,892 @@
+/* ============================================
+   BUILDING DASHBOARD - DESIGN SYSTEM
+   מסך שחור חם, ייצוג עומק ע"י בהירות בלבד (בלי מסגרות וצללים),
+   וצבע אחד בלבד על נתונים - צהוב תורמוס בערכת ברירת המחדל.
+   ============================================ */
+
+/* --- 1. DESIGN TOKENS ---
+   כל ערכת צבעים מחליפה רק את המשתנים האלה (סעיף 2).
+   ground  = רקע המסך      surface = פאנל      raised = כרטיס בתוך פאנל
+   accent  = הצבע היחיד שעל נתונים (טווחי טמפרטורה, ספירה לאחור, "היום")
+   on-accent = טקסט על גבי accent (כפתור שמירה בחלון הניהול) */
+body {
+    color-scheme: dark;   /* מונע מ-WebView (Fully Kiosk) להכהות את הדף בעצמו */
+    --ground:        #0b0d10;
+    --surface:       #14171b;
+    --raised:        #1f2329;
+    --line:          #2a2f36;
+    --text:          #f5f7fa;
+    --muted:         #b2b8c0;
+    --faint:         #8f959d;
+    --accent:        #6cb8e8;
+    --accent-soft:   #16293a;
+    --on-accent:     #06131c;
+    --positive:      #6fd39a;
+    --positive-soft: #14261b;
+    --negative:      #ef5a5f;
+    --negative-soft: #2c1719;
+    --warning:       #e5a93b;
+    --ynet-red:      #c8102e;
+    --frame:         var(--surface);   /* צבע המסגרת שמסביב למסך (סעיף 4) */
+
+    /* Radius - כרטיסים רכים, פקדים עגולים לגמרי */
+    --r-sm:  10px;
+    --r-md:  14px;
+    --r-lg:  20px;
+
+    /* צללים - רק למה שבאמת צף (חלון הניהול, פאנל הצבעים) */
+    --shadow-sm:  0 2px 8px rgba(0,0,0,0.25);
+    --shadow-md:  0 8px 24px rgba(0,0,0,0.4);
+    --shadow-lg:  0 16px 48px rgba(0,0,0,0.55);
+
+    --font: 'IBM Plex Sans Hebrew', 'Heebo', system-ui, sans-serif;
+    --bar-height: 50px;
+    --ticker-speed: 180s;
+
+    /* שמות ישנים - חלון הניהול (סעיף 14) עדיין משתמש בהם */
+    --bg:          var(--ground);
+    --surface-2:   var(--raised);
+    --border:      var(--line);
+    --text-muted:  var(--muted);
+    --text-faint:  var(--faint);
+    --gold:        var(--accent);
+    --gold-light:  var(--accent-soft);
+    --gold-dim:    var(--accent);
+    --red:         var(--negative);
+    --green:       var(--positive);
+}
+
+/* --- 2. ערכות צבעים - 3 ערכות, מוגדרות ב-skin.js (themes) ונבחרות ע"י core/themes.js.
+       class בשם theme-<id> על ה-body; הערכה הבהירה (almond) - בלי dark-mode.
+       בלי class בכלל = הטוקנים של סעיף 1 (כחול פלדה), רק כגיבוי --- */
+
+/* יין ושמפניה - בורדו כהה עם זהב רך */
+body.theme-wine {
+    --ground:        #120a0c;
+    --surface:       #1d1215;
+    --raised:        #2a1b1f;
+    --line:          #362329;
+    --text:          #fbf4f5;
+    --muted:         #c4b2b6;
+    --faint:         #a08f93;
+    --accent:        #e8c39e;
+    --accent-soft:   #33261a;
+    --on-accent:     #241708;
+    --positive:      #8fd18b;
+    --positive-soft: #18251a;
+}
+
+/* גחלים - גרפיט עם כתום בוער */
+body.theme-ember {
+    --ground:        #0d0d0e;
+    --surface:       #18181a;
+    --raised:        #242427;
+    --line:          #2f2f33;
+    --text:          #fafafa;
+    --muted:         #b6b6ba;
+    --faint:         #949499;
+    --accent:        #ff7a33;
+    --accent-soft:   #33190b;
+    --on-accent:     #2a0f00;
+}
+
+/* שקד - בהיר וחמים, ירוק זית */
+body.theme-almond {
+    --ground:        #f2eee7;
+    --surface:       #fffdf9;
+    --raised:        #e9e3d8;
+    --line:          #d6cebf;
+    --text:          #1a1712;
+    --muted:         #423c33;
+    --faint:         #5a5348;
+    --accent:        #4d6b1f;
+    --accent-soft:   #e6eed6;
+    --on-accent:     #ffffff;
+    --frame:         #ddd5c7;
+}
+
+/* מה שמשותף לערכות הבהירות */
+body.theme-almond {
+    color-scheme: light;
+    --positive:      #1f7a45;
+    --positive-soft: #dcf5e4;
+    --negative:      #c4242a;
+    --negative-soft: #fde8e6;
+    --shadow-md:     0 8px 24px rgba(0,0,0,0.12);
+    --shadow-lg:     0 16px 48px rgba(0,0,0,0.18);
+}
+
+/* --- 3. BASE & RESET --- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+body {
+    background-color: var(--ground);
+    font-family: var(--font);
+    color: var(--text);
+    direction: rtl;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.4s ease, color 0.3s ease;
+}
+
+.material-symbols-outlined { font-variation-settings: 'wght' 300; }
+
+/* --- 4. LAYOUT ---
+   #tv-stage הוא קנבס בגודל פיקסלים קבוע (1280x720 - תואם את ה-viewport meta).
+   כל המידות בפנים מחושבות ביחס לקנבס הזה ולא לגודל המסך בפועל.
+   stage_scale.js מפעיל transform:scale אחיד על #tv-stage כדי להתאים
+   אותו לכל מסך/רזולוציה בפרופורציה נכונה (Fully Kiosk / TVBro).
+
+   מסגרת: כל המסך יושב בתוך "מסך פנימי" מעוגל, 12px מהקצה (--frame-w),
+   על רקע בצבע המסגרת (--frame) ועם קו דק בצבע המבטא.
+
+   חשבון הרשת: 1280 = 12 (מסגרת) + 20 (שוליים) + 392 (עמודת שעון) + 28 (רווח)
+                      + 796 (לוח) + 20 (שוליים) + 12 (מסגרת).
+   הלוח: 796 = 390 + 16 + 390, ושורת הסטטוס פרושה על שתי העמודות. --- */
+#tv-stage {
+    --frame-w: 12px;
+    --frame-r: 26px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1280px;
+    height: 720px;
+    transform-origin: 0 0;
+    overflow: hidden;
+    background: var(--frame);
+    transition: background 0.4s ease, opacity 2s ease;
+}
+/* המסך הפנימי */
+#tv-stage::before {
+    content: "";
+    position: absolute;
+    inset: var(--frame-w);
+    border-radius: var(--frame-r);
+    background: var(--ground);
+    transition: background 0.4s ease;
+}
+/* הקו הדק שמסביב - מעל הכל (כולל בר החדשות), לא תופס לחיצות */
+#tv-stage::after {
+    content: "";
+    position: absolute;
+    inset: var(--frame-w);
+    border-radius: var(--frame-r);
+    border: 2px solid var(--accent);
+    opacity: 0.6;
+    pointer-events: none;
+    z-index: 1003;
+}
+
+.main-wrapper {
+    position: absolute;
+    inset: var(--frame-w) var(--frame-w) calc(var(--bar-height) + var(--frame-w)) var(--frame-w);
+    display: grid;
+    grid-template-columns: 392px 1fr;
+    gap: 28px;
+    padding: 18px 20px 14px;
+}
+
+/* החשכה בלילה המאוחר (ערכה אוטומטית) - ב-core/core.css. כאן רק המעבר האיטי
+   (transition של opacity ב-#tv-stage למעלה) */
+
+/* --- 5. עמודת השעון ומזג האוויר --- */
+.hero-col {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.identity { display: flex; align-items: baseline; gap: 12px; }
+.project-name {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text);
+}
+.area-line {
+    font-size: 15px;
+    color: var(--muted);
+}
+
+.clock-section {
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+}
+.big-time {
+    font-size: 132px;
+    font-weight: 200;
+    line-height: 1;
+    letter-spacing: -0.045em;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    margin-inline-start: -6px; /* מיישר את קו הספרות הדק לקו הטקסט שמעליו */
+}
+.date-line {
+    margin-top: 4px;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text);
+}
+.hebrew-date {
+    margin-top: 2px;
+    min-height: 26px;
+    font-size: 18px;
+    color: var(--muted);
+}
+
+/* הכרטיס ממלא את גובה העמודה, ופסי התחזית נמתחים לגובה שנשאר */
+.weather-card {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    margin-top: 22px;
+    margin-bottom: 14px;
+    background: var(--surface);
+    border-radius: var(--r-lg);
+    padding: 18px 20px 16px;
+    transition: background 0.4s ease;
+}
+.current-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.main-icon {
+    font-size: 46px !important;
+    color: var(--accent);
+}
+.main-temp {
+    font-size: 58px;
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+}
+.current-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-inline-start: 6px;
+}
+.weather-desc  { font-size: 18px; font-weight: 500; color: var(--text); }
+.weather-range { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* תחזית 7 ימים: עמודה לכל יום, והפס הצהוב הוא טווח הטמפרטורות של אותו יום
+   על סקאלה אחת משותפת לכל השבוע (skin.js מחשב top/bottom באחוזים) */
+.forecast-section {
+    flex: 1;
+    min-height: 0;
+    margin-top: 16px;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+}
+.forecast-item {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+.fc-day  { font-size: 14px; font-weight: 500; color: var(--muted); white-space: nowrap; }
+.fc-icon { font-size: 22px !important; color: var(--muted); }
+.fc-max  { font-size: 16px; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
+.fc-min  { font-size: 14px; color: var(--faint); font-variant-numeric: tabular-nums; }
+.fc-track {
+    position: relative;
+    flex: 1;
+    min-height: 40px;
+    width: 6px;
+    border-radius: 999px;
+    background: var(--raised);
+}
+.fc-fill {
+    position: absolute;
+    inset-inline: 0;
+    border-radius: 999px;
+    background: var(--accent);
+}
+.forecast-item.is-today .fc-day { color: var(--text); font-weight: 600; }
+
+/* תחתית העמודה: נגן המוזיקה. 84px מימין שמורים לכפתורי הניהול והצבעים (סעיף 11) */
+.hero-foot {
+    flex-shrink: 0;
+    display: flex;
+    padding-inline-start: 84px;
+}
+.hero-foot .radio-bar { flex: 1; }
+
+/* --- 6. הלוח --- */
+.board {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 16px;
+    min-height: 0;
+}
+
+.panel {
+    background: var(--surface);
+    border-radius: var(--r-lg);
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    transition: background 0.4s ease;
+}
+.building-status-section { grid-column: 1 / -1; padding-bottom: 18px; }
+
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-shrink: 0;
+}
+.section-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+}
+.section-header .material-symbols-outlined {
+    font-size: 22px;
+    color: var(--muted);
+}
+
+.panel-empty {
+    margin: 0;
+    padding: 10px 0;
+    font-size: 15px;
+    color: var(--muted);
+}
+
+/* --- 7. הודעות --- */
+.notices-list {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* core/notices.js מפעיל גלילה רק אם התוכן בפועל לא נכנס בגובה הזמין -
+   כך שעם 3-4 הודעות קצרות זה נשאר סטטי, ורק אם מוסיפים עוד הודעות זה
+   עובר אוטומטית לגלילה רציפה (במהירות קבועה - לא צריך לכייל שוב ידנית) */
+.notices-track {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.notices-track.is-scrolling {
+    animation: notices-scroll linear infinite;
+    animation-duration: var(--notices-scroll-duration, 20s);
+}
+.notices-track.is-scrolling:hover { animation-play-state: paused; }
+@keyframes notices-scroll {
+    0%   { transform: translateY(0); }
+    100% { transform: translateY(-50%); }
+}
+
+.notice-item {
+    background: var(--raised);
+    border-radius: var(--r-md);
+    padding: 10px 16px 11px;
+    transition: background 0.3s ease;
+}
+.notice-item h3 {
+    margin: 0 0 3px 0;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+}
+.notice-item p {
+    margin: 0;
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.45;
+}
+/* הודעה דחופה: רקע אדום כהה וכותרת אדומה - האדום היחיד על המסך */
+.notice-item.active-notice { background: var(--negative-soft); }
+.notice-item.active-notice h3 { color: var(--negative); }
+.notice-item.active-notice p  { color: var(--text); }
+
+/* QR codes */
+/* קודי QR (core/qr.js) - 1 עד 3, לפי data-count:
+   3 / 2 = עמודות שוות זו לצד זו; 1 = תמונה וכיתוב בשורה אחת, במרכז */
+.qr-container-mini {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding-top: 14px;
+    margin-top: auto;
+    flex-shrink: 0;
+}
+.qr-container-mini[data-count="1"] .qr-item {
+    flex-direction: row;
+    justify-content: center;
+    gap: 14px;
+}
+.qr-container-mini[data-count="1"] .qr-label { font-size: 15px; }
+.qr-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+}
+.qr-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    text-align: center;
+    white-space: nowrap;
+}
+.qr-img {
+    width: 76px;
+    height: 76px;
+    padding: 5px;
+    background: #ffffff;
+    border-radius: var(--r-sm);
+    flex-shrink: 0;
+}
+.qr-img img,
+.qr-img svg { display: block; width: 100%; height: 100%; }
+
+/* --- 8. שבת ומועדים --- */
+.shabbat-times { flex-shrink: 0; }
+.shabbat-card {
+    background: var(--raised);
+    border-radius: var(--r-md);
+    padding: 14px 16px 16px;
+    margin-bottom: 6px;
+}
+.shabbat-title {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+}
+.shabbat-title .material-symbols-outlined { font-size: 20px; color: var(--accent); }
+/* ספירה לאחור עד כניסת שבת - מתעדכנת כל 30 שניות */
+.shabbat-countdown {
+    margin-top: 2px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+}
+.shabbat-times-row {
+    display: flex;
+    gap: 24px;
+    margin-top: 12px;
+}
+.shabbat-time {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+.shabbat-label { font-size: 14px; color: var(--muted); }
+.shabbat-value {
+    font-size: 36px;
+    font-weight: 300;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+}
+
+.events-list {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.event-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 11px 2px;
+}
+.event-card + .event-card { border-top: 1px solid var(--line); }
+.event-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 44px;
+    flex-shrink: 0;
+}
+.event-date .day {
+    font-size: 30px;
+    font-weight: 300;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+}
+.event-date .month { font-size: 13px; color: var(--muted); margin-top: 3px; }
+.event-info { min-width: 0; }
+.event-info h4 {
+    margin: 0 0 1px 0;
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.event-info p { margin: 0; font-size: 14px; color: var(--muted); }
+.event-info p.is-soon { color: var(--accent); font-weight: 500; }
+
+/* --- 9. סטטוס בניין - שורה אחת, עמודה לכל פריט --- */
+.status-column-wrapper {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: 10px;
+}
+/* האייקון יושב באותה שורה עם הכותרת הקטנה (absolute), והערך מתחתיהם */
+.status-item-mini {
+    position: relative;
+    padding: 11px 12px 12px;
+    background: var(--raised);
+    border-radius: var(--r-md);
+    min-width: 0;
+}
+.status-item-mini .status-icon {
+    position: absolute;
+    top: 13px;
+    inset-inline-start: 12px;
+    width: 18px;
+    display: flex;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 15px;
+}
+.status-label {
+    display: block;
+    padding-inline-start: 24px;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.status-value {
+    display: block;
+    margin-top: 1px;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--text);
+}
+.status-value.highlight { color: var(--positive); }
+/* state: "warning" ב-building_status_data.js → status-warning */
+.status-value.status-warning { color: var(--negative); }
+
+/* "היום" / "מחר" - core/status.js מוסיף כשיום השבוע מופיע בטקסט.
+   כרטיס של "היום" מקבל גם רקע בגוון המבטא, כדי שיבלוט מרחוק */
+.status-when {
+    display: block;
+    margin-top: 3px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+}
+.status-when.is-tomorrow { color: var(--muted); font-weight: 500; }
+.status-item-mini.is-today { background: var(--accent-soft); }
+
+/* --- 10. MUSIC BAR (גלגלצ / מוזיקת הבית) ---
+   פקד ראשי מסומן בהיפוך צבעים (טקסט על רקע בהיר), לא בצבע המבטא */
+.radio-bar {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--raised);
+    border-radius: 999px;
+    padding: 6px;
+    user-select: none;
+    transition: background 0.3s ease;
+}
+/* רק אזור הנגינה לוחצני - כדי שלחיצה על בורר המקור לא תפעיל/תעצור השמעה */
+.radio-bar .radio-play {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+.radio-bar .radio-icon-wrap {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    color: var(--text);
+    flex-shrink: 0;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+.radio-bar .radio-play:active .radio-icon-wrap { transform: scale(0.94); }
+.radio-bar .radio-icon-wrap .material-symbols-outlined { font-size: 20px; }
+.radio-bar .radio-label {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+}
+.radio-bar .radio-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 14px;
+}
+.radio-bar .radio-bars span {
+    width: 3px;
+    height: 4px;
+    background: var(--muted);
+    border-radius: 2px;
+    opacity: 0.5;
+}
+.radio-bar.is-playing .radio-icon-wrap {
+    background: var(--text);
+    color: var(--ground);
+}
+.radio-bar.is-playing .radio-bars span {
+    background: var(--accent);
+    opacity: 1;
+    animation: radio-bounce 0.9s ease-in-out infinite;
+}
+.radio-bar.is-playing .radio-bars span:nth-child(1) { animation-delay: 0s; }
+.radio-bar.is-playing .radio-bars span:nth-child(2) { animation-delay: 0.2s; }
+.radio-bar.is-playing .radio-bars span:nth-child(3) { animation-delay: 0.4s; }
+/* התחברות מחדש - האקולייזר נעצר, כדי שהבר לא יעמיד פנים שמנגן */
+.radio-bar.is-reconnecting .radio-bars span { animation: none; opacity: 0.5; background: var(--muted); }
+@keyframes radio-bounce {
+    0%, 100% { height: 4px; }
+    50%      { height: 14px; }
+}
+
+/* בורר המקור - נדחף לקצה השני של הבר (margin-inline-start ב-RTL = שמאלה) */
+.radio-source-switch {
+    display: flex;
+    gap: 2px;
+    margin-inline-start: auto;
+    padding: 3px;
+    background: var(--surface);
+    border-radius: 999px;
+    flex-shrink: 0;
+}
+.radio-source-chip {
+    width: 34px;
+    height: 26px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--faint);
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+.radio-source-chip .material-symbols-outlined {
+    font-size: 18px;
+    color: inherit;
+}
+.radio-source-chip:hover { color: var(--text); }
+.radio-source-chip.is-selected {
+    background: var(--text);
+    color: var(--ground);
+}
+
+/* --- 11. כפתורי ניהול וצבעים + פאנל הצבעים ---
+   יושבים בתחתית עמודת השעון (מימין, ב-RTL), באותה שורה עם נגן המוזיקה.
+   מימין: המסגרת + 20px ריפוד של .main-wrapper.
+   מלמטה: בר החדשות + המסגרת + 14px ריפוד, ועוד 5px כדי שהמרכז שלהם (34px)
+   ייפול על המרכז של הנגן (44px). */
+.admin-toggle-btn,
+.theme-picker-btn {
+    position: absolute;
+    bottom: calc(var(--bar-height) + var(--frame-w) + 19px);
+    z-index: 1001;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--faint);
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+.theme-picker-btn  { right: calc(var(--frame-w) + 20px); }
+.admin-toggle-btn  { right: calc(var(--frame-w) + 62px); }
+.admin-toggle-btn:hover,
+.theme-picker-btn:hover { background: var(--raised); color: var(--text); }
+.admin-toggle-btn:active,
+.theme-picker-btn:active { transform: scale(0.94); }
+.admin-toggle-btn .material-symbols-outlined,
+.theme-picker-btn .material-symbols-outlined { font-size: 19px; }
+
+.theme-picker-panel {
+    position: absolute;
+    bottom: calc(var(--bar-height) + var(--frame-w) + 66px);
+    right: calc(var(--frame-w) + 20px);
+    z-index: 1002;
+    background: var(--raised);
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-lg);
+    padding: 14px;
+    display: none;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+    width: 300px;
+}
+/* עמודה אחת - "אוטומטי" + 3 ערכות */
+.theme-picker-panel.is-open { display: grid; }
+.theme-picker-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--muted);
+    margin-bottom: 4px;
+    grid-column: 1 / -1;
+}
+.theme-swatch-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 7px 8px;
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+.theme-swatch-row:hover { background: var(--surface); }
+/* "אוטומטי" - שורה מלאה בראש הפאנל */
+.theme-swatch-row.is-auto { grid-column: 1 / -1; }
+.theme-swatch-row.is-selected { background: var(--surface); }
+.theme-swatch-dots {
+    display: flex;
+    flex-shrink: 0;
+}
+.theme-swatch-dots span {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--raised);
+    margin-right: -7px;
+}
+.theme-swatch-label {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+}
+.theme-swatch-check {
+    margin-inline-start: auto;
+    color: var(--text);
+    font-size: 18px !important;
+    visibility: hidden;
+}
+.theme-swatch-row.is-selected .theme-swatch-check { visibility: visible; }
+
+/* --- 12. YNET NEWS BAR --- */
+.news-bar {
+    position: absolute;
+    /* בתוך המסגרת, עם הפינות התחתונות המעוגלות של המסך הפנימי */
+    bottom: var(--frame-w);
+    left: var(--frame-w);
+    right: var(--frame-w);
+    height: var(--bar-height);
+    border-radius: 0 0 var(--frame-r) var(--frame-r);
+    background: var(--surface);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    z-index: 1000;
+    overflow: hidden;
+    transition: background 0.4s ease;
+}
+.logo-area {
+    background: var(--ynet-red);
+    padding: 0 20px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+.logo-area img { height: 24px; }
+.ticker-container {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+.ticker-track {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    animation: marquee var(--ticker-speed) linear infinite;
+}
+.ticker-track:hover { animation-play-state: paused; }
+@keyframes marquee {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(50%); }
+}
+.ticker-item {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 0 26px;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text);
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+.ticker-item:hover { opacity: 0.75; }
+.ticker-time {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--faint);
+    font-variant-numeric: tabular-nums;
+}
+.separator {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--faint);
+    font-size: 0;
+    flex-shrink: 0;
+}
+#status-msg { padding: 0 22px; font-size: 15px; color: var(--muted); }
+
+/* --- 13. RESPONSIVE ---
+   אין: הדשבורד הוא קנבס פיקסלים קבוע (#tv-stage, ראו סעיף 4) שמתאים את עצמו
+   לכל מסך ע"י transform:scale אחיד ב-stage_scale.js, ולכן אין מסך "צר"
+   אמיתי שדורש לייאאוט נייד נפרד - וזה גם מה שגרם בעבר לאפליקציות הקיוסק
+   (Fully Kiosk / TVBro) "לפתוח כמו סלולאר" כשה-viewport שלהן נפל בטעות
+   בטווח ה-media query. --- */
+
+/* ============================================================
+   --- 14. מצב ניהול (אדמין) ---
+   כפתור המנעול + חלון העריכה שמאפשר לוועד הבית לערוך את ההודעות
+   ואת סטטוס הבניין מהמסך עצמו. ראו admin_panel.js.
+
+   הערה על מידות: כפתור המנעול יושב בתוך #tv-stage ולכן מוקטן/מוגדל
+   יחד עם הדשבורד. חלון העריכה עצמו מוצמד ל-body (מחוץ ל-#tv-stage)
+   ולכן מוצג בגודל אמיתי - כדי שיהיה קריא ונוח גם בעריכה מהטלפון.
+   ============================================================ */
+

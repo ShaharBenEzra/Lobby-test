@@ -15,10 +15,10 @@
   publish = "."
   functions = "netlify/functions"
 
-# קבצי הגיבוי הסטטיים - נקראים לפני הפרסום הראשון. אסור שיישבו ב-cache,
-# אחרת מסך שנפל לגיבוי יישאר עם גרסה ישנה.
+# הגדרות הבניינים (sites/<בניין>/) - חייבות להגיע טריות: תאריך המנוי, קודי
+# ה-QR וההודעות ברירת המחדל. בלי זה חידוש מנוי או קוד QR חדש "לא היו נקלטים".
 # (התוכן החי מגיע מפונקציית content, שכבר שולחת no-store בעצמה.)
 [[headers]]
-  for = "/content/*"
+  for = "/sites/*"
   [headers.values]
     Cache-Control = "no-cache, no-store, must-revalidate"

@@ -11,6 +11,18 @@ export const MAX_TEXT = 400;
 export const BLOB_STORE = "dashboard-content";
 export const BLOB_KEY = "current";
 
+// כל בניין (sites/<בניין>/ בקוד) שומר את התוכן שלו במפתח משלו, כך שאתר
+// אחד יכול להציג כמה בניינים. בלי site - המפתח הישן, לתאימות לאחור.
+// שם בניין: אותיות לטיניות קטנות, ספרות ומקפים בלבד (הוא גם שם תיקייה).
+export function siteId(value) {
+    const id = String(value ?? "").trim().toLowerCase();
+    return /^[a-z0-9-]{1,40}$/.test(id) ? id : "";
+}
+
+export function blobKey(site) {
+    return site ? "site-" + site : BLOB_KEY;
+}
+
 function oneLine(value, max = MAX_TEXT) {
     return String(value ?? "")
         .replace(/\s*[\r\n]+\s*/g, " ")
