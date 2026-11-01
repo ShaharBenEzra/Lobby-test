@@ -10,7 +10,7 @@ Dashboard.defineSite({
     area: "קריית ראשון",
     location: { lat: 31.973, lon: 34.7925 },
 
-    skin: "khelmonit",
+    skin: "option3",
     theme: "gold",
 
     // ⚠️ שלושת הקישורים זמניים (google.com) - להחליף בקישורי ההזמנה האמיתיים

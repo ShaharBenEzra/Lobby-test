@@ -1,5 +1,5 @@
 /*
- * סקין "החלמונית" - גרסת Premium: זכוכית כהה, Tailwind (מקומפל מראש) ואייקוני Lucide.
+ * סקין "אופציה 3" - גרסת Premium: זכוכית כהה, Tailwind (מקומפל מראש) ואייקוני Lucide.
  * כותרת: שעון | תחזית 7 ימים | מיקום וטמפרטורה | כלים. מתחת: 3 עמודות.
  *
  * החוזה של סקין (styles / themes / autoTheme / layout / render) - README.md.
@@ -118,8 +118,8 @@
     Dashboard.defineSkin({
         styles: [
             "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Heebo:wght@300;400;500;600;700;800;900&display=swap",
-            "skins/khelmonit/tailwind.css",
-            "skins/khelmonit/skin.css"
+            "skins/option3/tailwind.css",
+            "skins/option3/skin.css"
         ],
         bodyClass: "font-sans",
 

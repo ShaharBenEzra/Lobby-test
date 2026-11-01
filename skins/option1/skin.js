@@ -1,5 +1,5 @@
 /*
- * סקין "התורמוס 6" - שעון גדול במסגרת, עמודת מזג אוויר עם טווחי טמפרטורה,
+ * סקין "אופציה 1" - שעון גדול במסגרת, עמודת מזג אוויר עם טווחי טמפרטורה,
  * לוח של הודעות | שבת ומועדים, ושורת סטטוס בניין לרוחב.
  *
  * מה יש בסקין (החוזה המלא - README.md):
@@ -29,7 +29,7 @@
     Dashboard.defineSkin({
         styles: [
             "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Hebrew:wght@200;300;400;500;600&display=swap",
-            "skins/tormus6/skin.css"
+            "skins/option1/skin.css"
         ],
 
         themes: [

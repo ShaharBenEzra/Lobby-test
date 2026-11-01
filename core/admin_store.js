@@ -181,9 +181,12 @@ window.AdminStore = (function () {
         return typeof ADMIN_API !== "undefined" && !!ADMIN_API;
     }
 
+    // home=1: זה בניין הבית של הכתובת, אז השרת יכול להחזיר לו את מה שפורסם
+    // בגרסה הקודמת (בניין אחד לאתר, במפתח הישן) - עד הפרסום הראשון שלו
     function contentApi() {
         if (typeof CONTENT_API === "undefined" || !CONTENT_API) return null;
-        return CONTENT_API + (CONTENT_API.indexOf("?") === -1 ? "?" : "&") + "site=" + encodeURIComponent(SITE_ID);
+        return CONTENT_API + (CONTENT_API.indexOf("?") === -1 ? "?" : "&") + "site=" + encodeURIComponent(SITE_ID) +
+            (SITE_ID === Dashboard.homeSiteId() ? "&home=1" : "");
     }
 
     function fallbackUrls() {

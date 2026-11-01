@@ -1,5 +1,5 @@
 /*
- * סקין "התורמוס 8" - כותרת מזג אוויר + תחזית + שעון לרוחב המסך, ומתחתיה
+ * סקין "אופציה 2" - כותרת מזג אוויר + תחזית + שעון לרוחב המסך, ומתחתיה
  * לוח של 3 עמודות: הודעות ונגן | שבת ומועדים | סטטוס בניין וחלון תמונה.
  *
  * החוזה של סקין (styles / themes / autoTheme / layout / render) - README.md.
@@ -20,7 +20,7 @@
     Dashboard.defineSkin({
         styles: [
             "https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;800;900&display=swap",
-            "skins/tormus8/skin.css"
+            "skins/option2/skin.css"
         ],
 
         themes: [

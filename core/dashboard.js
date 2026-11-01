@@ -65,13 +65,22 @@ window.Dashboard = (function () {
 
     // ───────────────────────── בניין ─────────────────────────
 
+    function registry() {
+        return window.DashboardSites || { sites: [], hosts: {} };
+    }
+
+    // "בניין הבית" של הכתובת: מה שמוצג בלי ?site= (לפי הדומיין → default)
+    function homeSiteId() {
+        var reg = registry();
+        var byHost = reg.hosts && reg.hosts[location.hostname];
+        if (byHost && reg.sites.indexOf(byHost) !== -1) return byHost;
+        return reg.default || reg.sites[0];
+    }
+
     function resolveSiteId() {
-        var registry = window.DashboardSites || { sites: [], hosts: {} };
         var fromUrl = params.get("site");
-        if (fromUrl && registry.sites.indexOf(fromUrl) !== -1) return fromUrl;
-        var byHost = registry.hosts && registry.hosts[location.hostname];
-        if (byHost && registry.sites.indexOf(byHost) !== -1) return byHost;
-        return registry.default || registry.sites[0];
+        if (fromUrl && registry().sites.indexOf(fromUrl) !== -1) return fromUrl;
+        return homeSiteId();
     }
 
     function loadSite() {
@@ -108,7 +117,7 @@ window.Dashboard = (function () {
     function resolveSkin(id) {
         if (isSkin(id)) return id;
         if (site && isSkin(site.skin)) return site.skin;
-        return skinList().length ? skinList()[0].id : "tormus6";
+        return skinList().length ? skinList()[0].id : "option1";
     }
 
     // התוכן של הבניין שמור במכשיר (core/admin_store.js) - והסקין שהוועד בחר בתוכו.
@@ -248,6 +257,7 @@ window.Dashboard = (function () {
         mount: mount,
 
         site: function () { return site; },
+        homeSiteId: homeSiteId,
         skin: function () { return skin; },
         skins: skinList,
         resolveSkin: resolveSkin,
