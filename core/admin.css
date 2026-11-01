@@ -1,0 +1,608 @@
+/* --- 14ב. שכבת הכהות + מסגרת החלון --- */
+.admin-root {
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    display: none;
+    direction: rtl;
+    font-family: var(--font);
+}
+.admin-root.is-open { display: block; }
+
+.admin-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
+}
+
+.admin-modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(560px, calc(100vw - 24px));
+    max-height: min(680px, calc(100vh - 24px));
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+.admin-modal-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+    flex-shrink: 0;
+}
+.admin-modal-head > .material-symbols-outlined {
+    font-size: 22px;
+    color: var(--gold);
+}
+.admin-modal-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text);
+}
+.admin-close {
+    margin-inline-start: auto;
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+}
+.admin-close:hover { background: var(--border); color: var(--text); }
+.admin-close .material-symbols-outlined { font-size: 20px; }
+
+.admin-modal-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 16px 18px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+}
+
+.admin-modal-foot {
+    flex-shrink: 0;
+    padding: 12px 18px;
+    border-top: 1px solid var(--border);
+    background: var(--surface-2);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.admin-foot-main  { display: flex; gap: 8px; }
+.admin-foot-extra {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+    border-top: 1px dashed var(--border);
+    padding-top: 10px;
+}
+
+/* --- 14ג. כפתורים --- */
+.admin-btn {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+}
+.admin-btn.admin-btn-primary {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--on-accent);
+}
+.admin-btn.admin-btn-primary:hover { opacity: 0.88; }
+.admin-btn.admin-btn-ghost:hover { background: var(--border); }
+
+.admin-btn-sm {
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, opacity 0.15s;
+}
+.admin-btn-sm.admin-btn-ghost:hover { background: var(--border); color: var(--text); }
+.admin-btn-sm.admin-btn-danger {
+    background: var(--red);
+    color: #fff;
+}
+.admin-btn-sm.admin-btn-danger:hover { opacity: 0.88; }
+
+.admin-icon-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s, opacity 0.15s;
+}
+.admin-icon-btn:hover:not(:disabled) { background: var(--border); color: var(--text); }
+.admin-icon-btn:disabled { opacity: 0.3; cursor: default; }
+.admin-icon-btn .material-symbols-outlined { font-size: 17px; }
+.admin-icon-btn-danger:hover:not(:disabled) {
+    background: var(--red);
+    border-color: var(--red);
+    color: #fff;
+}
+
+/* --- 14ד. מסך ההתחברות --- */
+.admin-login { padding: 10px 0 4px; }
+.admin-login-text {
+    margin: 0 0 14px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+}
+.admin-login-input { text-align: center; font-size: 1.05rem; letter-spacing: 2px; }
+.admin-login-error {
+    margin-top: 8px;
+    min-height: 18px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--red);
+    text-align: center;
+}
+
+/* --- 13ד1. אבחון הגדרות במסך ההתחברות ---
+   אומר בדיוק באיזה שלב ההגדרה נתקעה (פונקציה לא פרוסה / חסר משתנה
+   סביבה / אין רשת), במקום להשאיר את המשתמש לנחש */
+.admin-diag-link {
+    display: block;
+    margin: 4px auto 0;
+    padding: 4px 8px;
+    border: none;
+    background: none;
+    color: var(--gold);
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.admin-diag {
+    display: none;
+    margin-top: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    background: var(--surface-2);
+    font-size: 0.78rem;
+    line-height: 1.45;
+}
+.admin-diag.is-open { display: block; }
+.admin-diag-line {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    font-weight: 700;
+    color: var(--text);
+}
+.admin-diag-line .material-symbols-outlined { font-size: 17px; flex-shrink: 0; }
+.admin-diag-ok  .material-symbols-outlined { color: var(--green); }
+.admin-diag-bad .material-symbols-outlined { color: var(--red); }
+.admin-diag-hint {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
+    color: var(--text-muted);
+    font-weight: 400;
+}
+.admin-diag-hint strong { color: var(--text); font-weight: 800; }
+
+/* --- 13ד2. שורת מצב (מאיפה התוכן שמוצג, ומתי עודכן) ---
+   זה מה שמונע את הבלבול "ערכתי ולא רואים את זה על הטלוויזיה" */
+.admin-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    background: var(--surface-2);
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.45;
+    color: var(--text-muted);
+}
+.admin-banner .material-symbols-outlined {
+    font-size: 18px;
+    color: var(--green);
+    flex-shrink: 0;
+}
+.admin-banner-warn {
+    border-color: var(--red);
+    color: var(--text);
+}
+.admin-banner-warn .material-symbols-outlined { color: var(--red); }
+
+/* --- 14ה. לשוניות --- */
+.admin-tabs {
+    display: flex;
+    gap: 6px;
+    padding: 4px;
+    margin-bottom: 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+}
+.admin-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 8px;
+    border: 1px solid transparent;
+    border-radius: var(--r-sm);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 0.86rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.admin-tab:hover { color: var(--text); }
+.admin-tab.is-active {
+    background: var(--surface);
+    border-color: var(--gold);
+    color: var(--gold);
+    box-shadow: var(--shadow-sm);
+}
+.admin-tab .material-symbols-outlined { font-size: 19px; }
+.admin-tab-count {
+    min-width: 20px;
+    padding: 1px 6px;
+    border-radius: 20px;
+    background: var(--border);
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+.admin-tab.is-active .admin-tab-count {
+    background: var(--gold);
+    color: var(--on-accent);
+}
+
+/* --- 14ו. כרטיסי העריכה --- */
+.admin-list { display: flex; flex-direction: column; gap: 12px; }
+
+.admin-empty {
+    padding: 26px 14px;
+    text-align: center;
+    font-size: 0.86rem;
+    color: var(--text-muted);
+    background: var(--surface-2);
+    border: 1px dashed var(--border);
+    border-radius: var(--r-md);
+}
+
+.admin-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-right: 4px solid var(--gold);
+    border-radius: var(--r-md);
+    padding: 12px 14px;
+    transition: border-color 0.2s;
+}
+.admin-card.is-urgent { border-right-color: var(--red); }
+
+.admin-card-head {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.admin-card-title {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--text-muted);
+}
+.admin-card-actions {
+    margin-inline-start: auto;
+    display: flex;
+    gap: 5px;
+}
+
+.admin-field { margin-bottom: 10px; }
+.admin-field:last-child { margin-bottom: 0; }
+.admin-field-label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.admin-input {
+    width: 100%;
+    padding: 9px 11px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.9rem;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.admin-input:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px var(--gold-light);
+}
+.admin-input-sm { padding: 6px 9px; font-size: 0.82rem; }
+.admin-textarea { resize: vertical; min-height: 56px; line-height: 1.45; }
+.admin-select { cursor: pointer; }
+
+.admin-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+.admin-check input { width: 16px; height: 16px; accent-color: var(--red); cursor: pointer; }
+
+.admin-add-btn {
+    width: 100%;
+    margin-top: 12px;
+    padding: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: 1px dashed var(--border);
+    border-radius: var(--r-md);
+    background: transparent;
+    color: var(--gold);
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+.admin-add-btn:hover { background: var(--surface-2); border-color: var(--gold); }
+.admin-add-btn .material-symbols-outlined { font-size: 20px; }
+
+/* --- 14ז. בוחר האייקונים --- */
+.admin-icon-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 11px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+.admin-icon-preview:hover { border-color: var(--gold); }
+.admin-icon-preview i { font-size: 17px; color: var(--gold); width: 20px; text-align: center; }
+.admin-icon-preview-label { color: var(--text-muted); font-weight: 400; font-size: 0.8rem; }
+
+.admin-icon-grid {
+    display: none;
+    grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+    gap: 6px;
+    margin-top: 8px;
+    padding: 10px;
+    max-height: 230px;
+    overflow-y: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+}
+.admin-icon-grid.is-open { display: grid; }
+
+.admin-icon-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 3px;
+    border: 1px solid transparent;
+    border-radius: var(--r-sm);
+    background: var(--surface-2);
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-align: center;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.admin-icon-cell i { font-size: 15px; }
+.admin-icon-cell:hover { border-color: var(--gold); color: var(--text); }
+.admin-icon-cell.is-selected {
+    border-color: var(--gold);
+    background: var(--gold-light);
+    color: var(--gold);
+}
+
+.admin-icon-custom {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;            /* במסך צר התווית והשדה יורדים לשתי שורות */
+    gap: 6px 8px;
+    padding-top: 8px;
+    margin-top: 2px;
+    border-top: 1px dashed var(--border);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+.admin-icon-custom .admin-input { flex: 1 1 150px; }
+
+/* --- 14ח. ייצוא, אישור ו-toast --- */
+.admin-note {
+    padding: 11px 13px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    border-right: 4px solid var(--gold);
+    border-radius: var(--r-md);
+    background: var(--surface-2);
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+}
+.admin-note strong { color: var(--text); }
+
+.admin-export-area {
+    min-height: 260px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.76rem;
+    line-height: 1.5;
+    direction: ltr;
+    text-align: left;
+    resize: vertical;
+}
+
+.admin-confirm {
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    width: min(520px, calc(100vw - 40px));
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    background: var(--surface);
+    border: 1px solid var(--red);
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-lg);
+}
+.admin-confirm-text {
+    flex: 1;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.4;
+}
+.admin-confirm-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+.admin-toast {
+    position: fixed;
+    bottom: 26px;
+    left: 50%;
+    transform: translate(-50%, 14px);
+    z-index: 6000;
+    padding: 11px 20px;
+    border-radius: 40px;
+    background: var(--text);
+    color: var(--bg);
+    font-family: var(--font);
+    font-size: 0.86rem;
+    font-weight: 800;
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+}
+.admin-toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+.admin-toast-error {
+    background: var(--red);
+    color: #fff;
+    max-width: min(520px, calc(100vw - 32px));
+    text-align: center;
+    line-height: 1.4;
+    border-radius: var(--r-md);
+}
+
+.admin-btn:disabled {
+    opacity: 0.6;
+    cursor: progress;
+}
+
+/* --- 14ט. לשונית "תצוגה" - בחירת הסקין --- */
+.admin-skin-option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    padding: 12px 14px;
+    text-align: right;
+    font: inherit;
+    color: var(--text);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+}
+.admin-skin-option:hover { border-color: var(--gold); }
+.admin-skin-option.is-selected {
+    border-color: var(--gold);
+    background: var(--gold-light);
+    box-shadow: inset 0 0 0 1px var(--gold);
+}
+.admin-skin-option > .material-symbols-outlined { color: var(--text-muted); font-size: 22px; }
+.admin-skin-option.is-selected > .material-symbols-outlined { color: var(--gold); }
+.admin-skin-dots { display: flex; flex-shrink: 0; }
+.admin-skin-dots span {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--surface-2);
+    margin-left: -6px;
+}
+.admin-skin-text { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+.admin-skin-label { font-size: 0.95rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.admin-skin-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; }
+.admin-skin-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 1px 8px;
+    border-radius: 999px;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+}

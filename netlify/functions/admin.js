@@ -4,9 +4,9 @@
 // דרך לשמור נתונים שיראו כל המסכים. הפונקציה הזו רצה בצד השרת של Netlify:
 // היא בודקת את הסיסמה, ורק היא כותבת לאחסון.
 //
-// שתי פעולות:
-//   { action: "verify", password }                  → בדיקת סיסמה (כניסה לפאנל)
-//   { action: "save", password, notices, status }   → שמירה ל-Netlify Blobs
+// שתי פעולות (site = שם תיקיית הבניין, sites/<בניין>/ בקוד):
+//   { action: "verify", site, password }                  → בדיקת סיסמה (כניסה לפאנל)
+//   { action: "save", site, password, notices, status, skin }   → שמירה ל-Netlify Blobs
 //
 // האחסון הוא Netlify Blobs - מובנה באתר, בלי חשבון נוסף ובלי token.
 // שמירה נכנסת לתוקף מיד, בלי commit ובלי deploy מחדש.
@@ -16,10 +16,15 @@
 //
 //       ADMIN_PASSWORD   סיסמת הניהול (ארוכה - זו כל ההגנה)
 //
+//     ואם לבניין מסוים צריכה להיות סיסמה משלו (ועד אחר):
+//
+//       ADMIN_PASSWORD_<בניין>   למשל ADMIN_PASSWORD_TORMUS8 - גובר על
+//                                ADMIN_PASSWORD עבור הבניין הזה בלבד
+//
 //     ראו ADMIN_SETUP.md.
 import { getStore } from "@netlify/blobs";
 import {
-    BLOB_STORE, BLOB_KEY, cleanNotices, cleanStatus, json
+    BLOB_STORE, blobKey, siteId, cleanNotices, cleanStatus, cleanSkin, json
 } from "../lib/content_shape.mjs";
 
 // השוואה שלא מדליפה את אורך/תוכן הסיסמה דרך זמן הריצה
@@ -47,7 +52,9 @@ export default async (req) => {
         return json(400, { error: "גוף הבקשה אינו JSON תקין" });
     }
 
-    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+    const site = siteId(body?.site);
+    const siteVar = site ? "ADMIN_PASSWORD_" + site.toUpperCase().replace(/-/g, "_") : "";
+    const ADMIN_PASSWORD = (siteVar && process.env[siteVar]) || process.env.ADMIN_PASSWORD;
     if (!ADMIN_PASSWORD) {
         return json(500, { error: "ADMIN_PASSWORD לא מוגדר בהגדרות הסביבה של Netlify" });
     }
@@ -70,12 +77,13 @@ export default async (req) => {
     const payload = {
         updatedAt: new Date().toISOString(),
         notices: cleanNotices(body.notices),
-        status: cleanStatus(body.status)
+        status: cleanStatus(body.status),
+        skin: cleanSkin(body.skin)
     };
 
     try {
         const store = getStore({ name: BLOB_STORE, consistency: "strong" });
-        await store.setJSON(BLOB_KEY, payload);
+        await store.setJSON(blobKey(site), payload);
         return json(200, { ok: true, ...payload });
     } catch (err) {
         return json(502, { error: "השמירה לאחסון נכשלה: " + err.message });

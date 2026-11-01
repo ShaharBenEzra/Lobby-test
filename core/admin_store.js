@@ -14,10 +14,13 @@
 window.AdminStore = (function () {
     "use strict";
 
-    var KEYS = {
-        cache: "dashboard-content-cache-v2",   // מה שנמשך מהאתר בפעם האחרונה
-        local: "dashboard-content-local-v2"    // עריכה מקומית שלא פורסמה
-    };
+    // התוכן שמור לכל בניין בנפרד - גם במכשיר וגם בשרת (?site=), כך ששני
+    // בניינים שמוצגים מאותו אתר לא דורסים זה לזה את ההודעות
+    var SITE_ID = window.Dashboard && Dashboard.site() ? Dashboard.site().id : "";
+
+    // cache = מה שנמשך מהאתר בפעם האחרונה, local = עריכה מקומית שלא פורסמה.
+    // המפתחות מוגדרים ב-core/dashboard.js, שקורא מהם את הסקין כבר בטעינת הדף
+    var KEYS = Dashboard.contentKeys();
 
     var listeners = [];
 
@@ -26,6 +29,7 @@ window.AdminStore = (function () {
         status: null,
         updatedAt: null,
         source: "defaults",   // "remote" | "cache" | "local" | "defaults"
+        skin: "",             // הסקין שהוועד בחר ("" = עוד לא בחר - skin של site.js)
         lastError: null
     };
 
@@ -73,7 +77,7 @@ window.AdminStore = (function () {
 
     // ─────────────── ברירות מחדל מקבצי הקוד ───────────────
 
-    // אותה לוגיקת פירוק שהייתה ב-notices_script.js: שורה ראשונה = כותרת,
+    // אותה לוגיקת פירוק כמו בקובץ notices_data.js: שורה ראשונה = כותרת,
     // השאר = גוף ההודעה, "---" מפריד בין הודעות, "!" בתחילת הכותרת = דחוף.
     function parseNoticesText(text) {
         var blocks = [];
@@ -144,12 +148,31 @@ window.AdminStore = (function () {
         });
     }
 
-    function apply(notices, status, updatedAt, source) {
+    function cleanSkin(value) {
+        var id = str(value).trim();
+        return Dashboard.skins().some(function (s) { return s.id === id; }) ? id : "";
+    }
+
+    function apply(notices, status, updatedAt, source, skin) {
         state.notices = cleanList(notices, cleanNoticeEntry);
         state.status = cleanList(status, cleanStatusEntry);
         state.updatedAt = updatedAt || null;
         state.source = source;
+        state.skin = cleanSkin(skin);
         notify();
+        followSkin();
+    }
+
+    // הסקין מוחל בטעינת הדף (core/dashboard.js קורא אותו מהעותק השמור כאן),
+    // ולכן כשמגיע סקין אחר מזה שמוצג - מרעננים את הדף. לא באמצע עריכה בחלון
+    // הניהול: שם הרענון קורה בסגירת החלון (admin_panel.js קורא לזה שוב).
+    function followSkin() {
+        if (Dashboard.resolveSkin(state.skin) === Dashboard.skin().id) return;
+        if (document.body.classList.contains("admin-open")) return;
+        // רק אם הבחירה באמת נשמרה במכשיר - אחרת הטעינה הבאה לא תדע עליה,
+        // והדף היה מתרענן שוב ושוב (דפדפן שחוסם אחסון מקומי)
+        if (Dashboard.storedSkin() !== state.skin) return;
+        location.reload();
     }
 
     // ───────────────── משיכת התוכן מהאתר ─────────────────
@@ -158,8 +181,12 @@ window.AdminStore = (function () {
         return typeof ADMIN_API !== "undefined" && !!ADMIN_API;
     }
 
+    // home=1: זה בניין הבית של הכתובת, אז השרת יכול להחזיר לו את מה שפורסם
+    // בגרסה הקודמת (בניין אחד לאתר, במפתח הישן) - עד הפרסום הראשון שלו
     function contentApi() {
-        return typeof CONTENT_API !== "undefined" && CONTENT_API ? CONTENT_API : null;
+        if (typeof CONTENT_API === "undefined" || !CONTENT_API) return null;
+        return CONTENT_API + (CONTENT_API.indexOf("?") === -1 ? "?" : "&") + "site=" + encodeURIComponent(SITE_ID) +
+            (SITE_ID === Dashboard.homeSiteId() ? "&home=1" : "");
     }
 
     function fallbackUrls() {
@@ -232,14 +259,14 @@ window.AdminStore = (function () {
                 var local = readJson(KEYS.local);
 
                 writeJson(KEYS.cache, {
-                    notices: data.notices, status: data.status, updatedAt: data.updatedAt
+                    notices: data.notices, status: data.status, updatedAt: data.updatedAt, skin: data.skin
                 });
                 state.lastError = null;
 
                 if (local) {
-                    apply(local.notices, local.status, local.updatedAt, "local");
+                    apply(local.notices, local.status, local.updatedAt, "local", local.skin);
                 } else {
-                    apply(data.notices, data.status, data.updatedAt, "remote");
+                    apply(data.notices, data.status, data.updatedAt, "remote", data.skin);
                 }
                 return true;
             })
@@ -252,20 +279,21 @@ window.AdminStore = (function () {
     // ───────────────────── שמירה ─────────────────────
 
     // שמירה מקומית - הדפדפן הנוכחי בלבד, לא מתפרסם לאף מסך אחר
-    function saveLocal(notices, status) {
+    function saveLocal(notices, status, skin) {
         var payload = {
             notices: cleanList(notices, cleanNoticeEntry),
             status: cleanList(status, cleanStatusEntry),
-            updatedAt: new Date().toISOString()
+            updatedAt: new Date().toISOString(),
+            skin: cleanSkin(skin)
         };
         var ok = writeJson(KEYS.local, payload);
-        apply(payload.notices, payload.status, payload.updatedAt, "local");
+        apply(payload.notices, payload.status, payload.updatedAt, "local", payload.skin);
         return ok;
     }
 
     // פרסום אמיתי - הפונקציה ב-Netlify עושה commit לריפו, וכל מסך
     // יאסוף את השינוי במשיכה הבאה שלו
-    function publish(password, notices, status) {
+    function publish(password, notices, status, skin) {
         if (!apiConfigured()) {
             return Promise.reject(new Error("מצב מקומי - אין פונקציית פרסום מוגדרת"));
         }
@@ -275,9 +303,11 @@ window.AdminStore = (function () {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 action: "save",
+                site: SITE_ID,
                 password: password,
                 notices: cleanList(notices, cleanNoticeEntry),
-                status: cleanList(status, cleanStatusEntry)
+                status: cleanList(status, cleanStatusEntry),
+                skin: cleanSkin(skin)
             })
         }).then(function (res) {
             return res.json().catch(function () { return {}; }).then(function (data) {
@@ -287,9 +317,9 @@ window.AdminStore = (function () {
                 // הצליח - אין יותר "עריכה מקומית שלא פורסמה"
                 removeKey(KEYS.local);
                 writeJson(KEYS.cache, {
-                    notices: data.notices, status: data.status, updatedAt: data.updatedAt
+                    notices: data.notices, status: data.status, updatedAt: data.updatedAt, skin: data.skin
                 });
-                apply(data.notices, data.status, data.updatedAt, "remote");
+                apply(data.notices, data.status, data.updatedAt, "remote", data.skin);
                 return data;
             });
         });
@@ -308,11 +338,16 @@ window.AdminStore = (function () {
         return fetch(ADMIN_API, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "verify", password: password })
+            body: JSON.stringify({ action: "verify", site: SITE_ID, password: password })
         }).then(function (res) {
             return res.json().catch(function () { return {}; }).then(function (data) {
                 if (res.status === 401) return { ok: false, wrongPassword: true };
                 if (res.status === 404) return { ok: false, notDeployed: true, status: 404 };
+                // 405 / 501 = שרת סטטי (הרצה מקומית / שרת שאינו Netlify) שלא מקבל POST בכלל -
+                // זה לא "חסרה הגדרה", אלא אין שרת ניהול; מטופל כמו אין תשובה (מצב מקומי)
+                if (res.status === 405 || res.status === 501) {
+                    return { ok: false, networkError: "השרת לא מריץ את פונקציית הניהול (" + res.status + ")" };
+                }
                 if (!res.ok) {
                     return {
                         ok: false,
@@ -384,9 +419,9 @@ window.AdminStore = (function () {
         return "/*\n" +
             "  ✏️  איך לערוך את ההודעות (רק טקסט - לא צריך להבין בתכנות!)\n" +
             "  ============================================================\n" +
-            "  קובץ זה הוא גיבוי בלבד: מקור האמת הוא content/notices.json,\n" +
-            "  שמתעדכן דרך פאנל הניהול. כאן נקראות ההודעות רק אם אין\n" +
-            "  אינטרנט או אם קובץ ה-JSON חסר.\n" +
+            "  קובץ זה הוא ברירת מחדל בלבד: מקור האמת הוא מה שהוועד פרסם\n" +
+            "  מפאנל הניהול. כאן נקראות ההודעות רק לפני הפרסום הראשון,\n" +
+            "  או אם אין אינטרנט ואין עותק שמור במכשיר.\n" +
             "\n" +
             "  1. כל הודעה: השורה הראשונה = כותרת, השורות שאחריה = הטקסט של ההודעה.\n" +
             "  2. בין הודעה להודעה משאירים שורה עם שלושה מקפים בלבד:  ---\n" +
@@ -410,9 +445,9 @@ window.AdminStore = (function () {
         return "/*\n" +
             "  ✏️  איך לערוך את \"סטטוס בניין\" (רק טקסט - לא צריך להבין בתכנות!)\n" +
             "  ============================================================\n" +
-            "  קובץ זה הוא גיבוי בלבד: מקור האמת הוא content/building_status.json,\n" +
-            "  שמתעדכן דרך פאנל הניהול. כאן נקרא הסטטוס רק אם אין אינטרנט\n" +
-            "  או אם קובץ ה-JSON חסר.\n" +
+            "  קובץ זה הוא ברירת מחדל בלבד: מקור האמת הוא מה שהוועד פרסם\n" +
+            "  מפאנל הניהול. כאן נקרא הסטטוס רק לפני הפרסום הראשון,\n" +
+            "  או אם אין אינטרנט ואין עותק שמור במכשיר.\n" +
             "\n" +
             "  icon  - שם אייקון מ-Font Awesome (בלי \"fa-\" בהתחלה):\n" +
             "          https://fontawesome.com/icons  (סגנון \"Solid\" - חינמי)\n" +
@@ -449,11 +484,13 @@ window.AdminStore = (function () {
             state.status = cleanList(local.status, cleanStatusEntry);
             state.updatedAt = local.updatedAt || null;
             state.source = "local";
+            state.skin = cleanSkin(local.skin);
         } else if (cache) {
             state.notices = cleanList(cache.notices, cleanNoticeEntry);
             state.status = cleanList(cache.status, cleanStatusEntry);
             state.updatedAt = cache.updatedAt || null;
             state.source = "cache";
+            state.skin = cleanSkin(cache.skin);
         }
     })();
 
@@ -487,6 +524,8 @@ window.AdminStore = (function () {
     return {
         getNotices: getNotices,
         getStatus: getStatus,
+        getSkin: function () { return state.skin; },
+        followSkin: followSkin,
 
         refresh: refresh,
         startPolling: startPolling,
@@ -502,7 +541,7 @@ window.AdminStore = (function () {
         discardLocal: function () {
             removeKey(KEYS.local);
             var cache = readJson(KEYS.cache);
-            if (cache) apply(cache.notices, cache.status, cache.updatedAt, "cache");
+            if (cache) apply(cache.notices, cache.status, cache.updatedAt, "cache", cache.skin);
             else apply(defaultNotices(), defaultStatus(), null, "defaults");
         },
 

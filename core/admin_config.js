@@ -14,8 +14,8 @@
   הכניסה: כפתור המנעול 🔒 בפינה למטה (או Ctrl+Shift+A).
 
   ⚠️  הסיסמה האמיתית *לא* נמצאת בקובץ הזה ולא בריפו. היא יושבת
-      כמשתנה סביבה בהגדרות של Netlify (משתנה אחד: ADMIN_PASSWORD),
-      והבדיקה נעשית בצד השרת. ראו ADMIN_SETUP.md.
+      כמשתנה סביבה בהגדרות של Netlify (ADMIN_PASSWORD, או סיסמה נפרדת לבניין:
+      ADMIN_PASSWORD_TORMUS8 וכו'), והבדיקה נעשית בצד השרת. ראו ADMIN_SETUP.md.
   ============================================================
 
   1) ADMIN_API - כתובת פונקציית הניהול (כתיבה).
@@ -24,9 +24,12 @@
 
   2) CONTENT_API - הכתובת שכל מסך מושך ממנה את התוכן. זה מקור האמת.
 
-  3) CONTENT_FALLBACK_URLS - קבצים סטטיים בריפו, נקראים רק אם CONTENT_API
-     לא זמין (למשל לפני הפרסום הראשון, או בהרצה מקומית). אם גם הם חסרים,
-     נופלים לקבצי notices_data.js / building_status_data.js שבקוד.
+  3) CONTENT_FALLBACK_URLS - קבצי JSON סטטיים, נקראים רק אם CONTENT_API לא
+     זמין. null = בלי שכבה כזו: ברירת המחדל היא ישר קבצי notices_data.js /
+     building_status_data.js שבתיקיית הבניין (sites/<בניין>/).
+
+  התוכן נשמר לכל בניין בנפרד (?site=<בניין> בבקשות), כך שאותו אתר יכול
+  להציג כמה בניינים בלי שההודעות שלהם יתערבבו.
 
   4) CONTENT_POLL_MINUTES - כל כמה דקות כל מסך בודק אם יש תוכן חדש.
      0 = בלי בדיקות אוטומטיות (רק בטעינת הדף).
@@ -52,10 +55,7 @@ const ADMIN_API = "/.netlify/functions/admin";
 
 const CONTENT_API = "/.netlify/functions/content";
 
-const CONTENT_FALLBACK_URLS = {
-    notices: "content/notices.json",
-    status: "content/building_status.json"
-};
+const CONTENT_FALLBACK_URLS = null;
 
 const CONTENT_POLL_MINUTES = 2;
 
