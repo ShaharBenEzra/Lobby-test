@@ -4,8 +4,9 @@
  * שלושה חלקים, כל אחד בתיקייה משלו:
  *
  *   sites/<בניין>/   מה שמייחד בניין: שם, כתובת, קודי QR, הודעות ברירת מחדל,
- *                    איזה סקין ואיזו ערכת צבעים. (sites/sites.js = רשימת הבניינים)
+ *                    סקין ברירת מחדל וערכת צבעים. (sites/sites.js = רשימת הבניינים)
  *   skins/<סקין>/    איך הדשבורד נראה: מבנה ה-HTML, ה-CSS, ו-3 ערכות צבעים.
+ *                    (skins/skins.js = רשימת הסקינים)
  *   core/            כל הלוגיקה, פעם אחת לכל הסקינים: מזג אוויר, שבת ומועדים,
  *                    חדשות, הודעות, סטטוס, רדיו, מצב ניהול.
  *
@@ -18,16 +19,17 @@
  * הטעינה ב-document.write ולא ב-fetch בכוונה: הקבצים נטענים לפי הסדר ולפני
  * שהדף מצטייר, בלי שלב build ובלי הבזק של עיצוב חסר.
  *
+ * הסקין נבחר רק בחלון הניהול (לשונית "תצוגה", עם הסיסמה) ומתפרסם לכל המסכים
+ *   של הבניין. הבחירה נשמרת במכשיר יחד עם ההודעות (core/admin_store.js), ומכאן
+ *   היא נקראת בטעינה. עד שהוועד בוחר - skin מ-site.js של הבניין.
+ *
  * בחירה דרך הכתובת (לבדיקות, ולמסך קיוסק שצריך משהו קבוע):
  *   ?site=tormus8      בניין אחר מזה שמוגדר לדומיין (לא נשמר - חל רק על הכתובת הזו)
- *   ?skin=khelmonit    סקין אחר מזה שמוגדר לבניין (לא נשמר)
  *   ?theme=auto        ערכת צבעים - נשמרת במכשיר, כמו בחירה מהפאנל
  * ─────────────────────────────────────────────────────────
  */
 window.Dashboard = (function () {
     "use strict";
-
-    var SKINS = ["tormus6", "tormus8", "khelmonit"];
 
     var params = new URLSearchParams(location.search);
     var siteId = null;
@@ -94,11 +96,40 @@ window.Dashboard = (function () {
 
     // ───────────────────────── סקין ─────────────────────────
 
+    function skinList() {
+        return window.DashboardSkins || [];
+    }
+
+    function isSkin(id) {
+        return skinList().some(function (s) { return s.id === id; });
+    }
+
+    // סקין שהוועד בחר → skin של הבניין → הראשון ברשימה
+    function resolveSkin(id) {
+        if (isSkin(id)) return id;
+        if (site && isSkin(site.skin)) return site.skin;
+        return skinList().length ? skinList()[0].id : "tormus6";
+    }
+
+    // התוכן של הבניין שמור במכשיר (core/admin_store.js) - והסקין שהוועד בחר בתוכו.
+    // local = עריכה מקומית שלא פורסמה (גוברת), cache = מה שנמשך מהאתר לאחרונה.
+    function contentKeys() {
+        return {
+            cache: "dashboard-content-cache-v3:" + siteId,
+            local: "dashboard-content-local-v3:" + siteId
+        };
+    }
+
+    function storedSkin() {
+        var keys = contentKeys();
+        var stored = [keys.local, keys.cache].map(function (key) {
+            try { return JSON.parse(load(key)); } catch (e) { return null; }
+        }).filter(Boolean)[0];
+        return stored && typeof stored.skin === "string" ? stored.skin : "";
+    }
+
     function loadSkin() {
-        var fromUrl = params.get("skin");
-        skinId = SKINS.indexOf(fromUrl) !== -1 ? fromUrl
-               : SKINS.indexOf(site && site.skin) !== -1 ? site.skin
-               : SKINS[0];
+        skinId = resolveSkin(storedSkin());
         // הכללים המשותפים וחלון הניהול זהים בכל הסקינים ונשענים על משתני
         // הצבע שלהם. נטענים לפני הסקין, כדי שהסקין יוכל לדרוס בהם פרטים
         write('<link rel="stylesheet" href="core/core.css">');
@@ -218,6 +249,10 @@ window.Dashboard = (function () {
 
         site: function () { return site; },
         skin: function () { return skin; },
+        skins: skinList,
+        resolveSkin: resolveSkin,
+        storedSkin: storedSkin,
+        contentKeys: contentKeys,
         asset: asset,
         render: render,
 

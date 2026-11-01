@@ -2,7 +2,7 @@
 // למשוך ממנו את ההודעות והסטטוס כדי להציג אותם.
 //
 // GET /.netlify/functions/content?site=<בניין>
-//   200 { updatedAt, notices, status }  - התוכן הנוכחי של הבניין מ-Netlify Blobs
+//   200 { updatedAt, notices, status, skin }  - התוכן הנוכחי של הבניין מ-Netlify Blobs
 //   204                                 - האחסון עוד ריק (אף פרסום לא נעשה):
 //                                         הלקוח ייפול לברירת המחדל שבקוד
 //                                         (sites/<בניין>/notices_data.js וכו').

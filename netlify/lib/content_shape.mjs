@@ -23,6 +23,14 @@ export function blobKey(site) {
     return site ? "site-" + site : BLOB_KEY;
 }
 
+// הסקין שהוועד בחר בלשונית "תצוגה" (שם תיקייה ב-skins/). השרת בודק רק את
+// הצורה - את רשימת הסקינים מכיר הלקוח (skins/skins.js), ושם לא מוכר נופל
+// שם לברירת המחדל של הבניין. "" = הוועד עוד לא בחר.
+export function cleanSkin(value) {
+    const id = String(value ?? "").trim();
+    return /^[a-z0-9-]{1,40}$/.test(id) ? id : "";
+}
+
 function oneLine(value, max = MAX_TEXT) {
     return String(value ?? "")
         .replace(/\s*[\r\n]+\s*/g, " ")
@@ -65,7 +73,8 @@ export function cleanPayload(raw) {
     return {
         updatedAt: typeof raw?.updatedAt === "string" ? raw.updatedAt : null,
         notices: cleanNotices(raw?.notices),
-        status: cleanStatus(raw?.status)
+        status: cleanStatus(raw?.status),
+        skin: cleanSkin(raw?.skin)
     };
 }
 

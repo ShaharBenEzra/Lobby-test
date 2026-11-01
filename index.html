@@ -16,7 +16,8 @@
           skins/<סקין>/    מבנה ה-HTML, ה-CSS ו-3 ערכות צבעים
           core/            כל הלוגיקה - משותפת לכולם
 
-        לבדיקה: ?site=tormus8  ?skin=khelmonit  ?theme=auto
+        הסקין נבחר רק בחלון הניהול (לשונית "תצוגה").
+        לבדיקה: ?site=tormus8  ?theme=auto
 
         רענון אוטומטי כל 4 שעות - core/auto_refresh.js (ולא meta refresh), כדי
         שאפשר יהיה להשהות אותו כשחלון הניהול פתוח.
@@ -29,14 +30,15 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300..400,0,0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    <!-- 1. הליבה + רשימת הבניינים -->
+    <!-- 1. הליבה + רשימת הבניינים + רשימת הסקינים -->
     <script src="core/dashboard.js"></script>
     <script src="sites/sites.js"></script>
+    <script src="skins/skins.js"></script>
 
     <!-- 2. הבניין: sites/<בניין>/site.js + הודעות וסטטוס ברירת מחדל -->
     <script>Dashboard.loadSite();</script>
 
-    <!-- 3. הסקין: skins/<סקין>/skin.js, שטוען את ה-CSS והגופנים שלו -->
+    <!-- 3. הסקין שהוועד בחר (או של הבניין): skins/<סקין>/skin.js, שטוען את ה-CSS והגופנים שלו -->
     <script>Dashboard.loadSkin();</script>
 
     <!-- 4. מנוי - כאן ב-head כדי שהדשבורד לא יהבהב לפני שהוא מוסתר -->

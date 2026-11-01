@@ -6,7 +6,7 @@
 //
 // שתי פעולות (site = שם תיקיית הבניין, sites/<בניין>/ בקוד):
 //   { action: "verify", site, password }                  → בדיקת סיסמה (כניסה לפאנל)
-//   { action: "save", site, password, notices, status }   → שמירה ל-Netlify Blobs
+//   { action: "save", site, password, notices, status, skin }   → שמירה ל-Netlify Blobs
 //
 // האחסון הוא Netlify Blobs - מובנה באתר, בלי חשבון נוסף ובלי token.
 // שמירה נכנסת לתוקף מיד, בלי commit ובלי deploy מחדש.
@@ -24,7 +24,7 @@
 //     ראו ADMIN_SETUP.md.
 import { getStore } from "@netlify/blobs";
 import {
-    BLOB_STORE, blobKey, siteId, cleanNotices, cleanStatus, json
+    BLOB_STORE, blobKey, siteId, cleanNotices, cleanStatus, cleanSkin, json
 } from "../lib/content_shape.mjs";
 
 // השוואה שלא מדליפה את אורך/תוכן הסיסמה דרך זמן הריצה
@@ -77,7 +77,8 @@ export default async (req) => {
     const payload = {
         updatedAt: new Date().toISOString(),
         notices: cleanNotices(body.notices),
-        status: cleanStatus(body.status)
+        status: cleanStatus(body.status),
+        skin: cleanSkin(body.skin)
     };
 
     try {

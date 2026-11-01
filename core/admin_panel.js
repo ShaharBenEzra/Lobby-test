@@ -372,7 +372,8 @@
 
         draft = {
             notices: clone(AdminStore.getNotices()),
-            status: clone(AdminStore.getStatus())
+            status: clone(AdminStore.getStatus()),
+            skin: AdminStore.getSkin()      // "" = הוועד עוד לא בחר (skin של site.js)
         };
         dirty = false;
 
@@ -389,7 +390,14 @@
         var tabs = el("div", "admin-tabs");
         tabs.appendChild(tabButton("notices", "notifications", "הודעות ועד בית", draft.notices.length));
         tabs.appendChild(tabButton("status", "apartment", "סטטוס בניין", draft.status.length));
+        tabs.appendChild(tabButton("skin", "dashboard", "תצוגה", null));
         bodyEl.appendChild(tabs);
+
+        if (activeTab === "skin") {
+            bodyEl.appendChild(skinPicker());
+            drawFooter();
+            return;
+        }
 
         // ── רשימת הפריטים ──
         var list = el("div", "admin-list");
@@ -464,8 +472,58 @@
         });
         b.appendChild(iconSpan(icon));
         b.appendChild(el("span", null, label));
-        b.appendChild(el("span", "admin-tab-count", String(count)));
+        if (count !== null) b.appendChild(el("span", "admin-tab-count", String(count)));
         return b;
+    }
+
+    // ── לשונית "תצוגה": בחירת הסקין של הבניין ──
+    // רק כאן בוחרים סקין (אין כפתור על המסך ואין פרמטר בכתובת), כדי שמי שעובר
+    // בלובי לא ישנה את כל העיצוב. הבחירה מתפרסמת יחד עם ההודעות והסטטוס.
+    function skinPicker() {
+        var wrap = el("div", "admin-list");
+
+        var note = el("div", "admin-note");
+        note.appendChild(el("strong", null, "איך הדשבורד נראה. "));
+        note.appendChild(document.createTextNode(
+            "הבחירה חלה על כל המסכים של הבניין אחרי " +
+            (localMode || AdminStore.isLocalOnly() ? "השמירה" : "הפרסום") +
+            ", והמסך מתרענן לתצוגה החדשה. ערכת הצבעים נבחרת בנפרד, מהכפתור שעל המסך."));
+        wrap.appendChild(note);
+
+        var selected = Dashboard.resolveSkin(draft.skin);
+        var siteDefault = Dashboard.resolveSkin("");
+        var showing = Dashboard.skin().id;
+
+        Dashboard.skins().forEach(function (option) {
+            var row = button("admin-skin-option" + (option.id === selected ? " is-selected" : ""), "", function () {
+                draft.skin = option.id;
+                dirty = true;
+                drawEditor();
+            });
+            row.setAttribute("role", "radio");
+            row.setAttribute("aria-checked", String(option.id === selected));
+
+            var dots = el("span", "admin-skin-dots");
+            (option.dots || []).forEach(function (color) {
+                var dot = el("span");
+                dot.style.background = color;
+                dots.appendChild(dot);
+            });
+
+            var text = el("span", "admin-skin-text");
+            var title = el("span", "admin-skin-label", option.label);
+            if (option.id === showing) title.appendChild(el("span", "admin-skin-tag", "מוצג עכשיו"));
+            text.appendChild(title);
+            text.appendChild(el("span", "admin-skin-desc", option.description +
+                (option.id === siteDefault ? " · ברירת המחדל של הבניין" : "")));
+
+            row.appendChild(dots);
+            row.appendChild(text);
+            row.appendChild(iconSpan(option.id === selected ? "radio_button_checked" : "radio_button_unchecked"));
+            wrap.appendChild(row);
+        });
+
+        return wrap;
     }
 
     // ── כרטיס עריכה של הודעה ──
@@ -660,14 +718,17 @@
             askConfirm("להחליף את מה שעל המסך בתוכן שכתוב בקבצי הקוד? (עוד לא יפורסם - צריך ללחוץ פרסום אחר כך)",
                 "שחזר", function () {
                     var d = AdminStore.codeDefaults();
-                    draft = { notices: clone(d.notices), status: clone(d.status) };
+                    draft = { notices: clone(d.notices), status: clone(d.status), skin: draft.skin };
                     dirty = true;
                     drawEditor();
                     toast("נטען התוכן מקבצי הקוד");
                 });
         }));
 
-        extra.appendChild(button("admin-btn-sm admin-btn-ghost", "ייצוא לקובץ קוד", showExport));
+        // הייצוא הוא של הודעות / סטטוס לקובץ קוד - לסקין אין קובץ כזה
+        if (activeTab !== "skin") {
+            extra.appendChild(button("admin-btn-sm admin-btn-ghost", "ייצוא לקובץ קוד", showExport));
+        }
 
         if (AdminStore.hasUnpublishedLocal()) {
             extra.appendChild(button("admin-btn-sm admin-btn-ghost", "ביטול שינוי מקומי", function () {
@@ -703,32 +764,41 @@
         btn.textContent = on ? (label || "מפרסם...") : (localMode ? "שמירה מקומית" : "פרסום");
     }
 
+    // סקין חדש נכנס לתוקף רק בטעינת הדף - סוגרים את החלון, ו-close() מרענן
+    function applySkinIfChanged() {
+        if (Dashboard.resolveSkin(AdminStore.getSkin()) === Dashboard.skin().id) return;
+        toast("מחליף תצוגה...");
+        setTimeout(function () { close(true); }, 600);
+    }
+
     function save() {
         if (busy) return;
 
         // מצב מקומי - שמירה בדפדפן הנוכחי, בלי להעמיד פנים שזה פורסם
         if (localMode || AdminStore.isLocalOnly()) {
-            var ok = AdminStore.saveLocal(draft.notices, draft.status);
+            var ok = AdminStore.saveLocal(draft.notices, draft.status, draft.skin);
             dirty = false;
             drawEditor();
             toast(ok ? "נשמר במכשיר הזה בלבד (לא פורסם)" : "השמירה נכשלה - הדפדפן חוסם אחסון מקומי",
                 ok ? null : "error");
+            if (ok) applySkinIfChanged();
             return;
         }
 
         setSaveBusy(true);
-        AdminStore.publish(currentPassword(), draft.notices, draft.status)
+        AdminStore.publish(currentPassword(), draft.notices, draft.status, draft.skin)
             .then(function () {
                 setSaveBusy(false);
                 dirty = false;
                 renderEditor();
                 toast("פורסם ✓ יופיע על כל המסכים תוך דקה-שתיים");
+                applySkinIfChanged();
             })
             .catch(function (err) {
                 setSaveBusy(false);
                 // הפרסום נכשל - שומרים מקומית כדי שהעבודה לא תלך לאיבוד,
                 // אבל אומרים במפורש שזה לא פורסם
-                AdminStore.saveLocal(draft.notices, draft.status);
+                AdminStore.saveLocal(draft.notices, draft.status, draft.skin);
                 dirty = false;
                 drawEditor();
                 toast("הפרסום נכשל: " + err.message + " — נשמר במכשיר הזה בלבד", "error");
@@ -846,6 +916,8 @@
         document.body.classList.remove("admin-open");
         dirty = false;
         if (window.AutoRefresh) AutoRefresh.resume();
+        // סקין שהתפרסם בזמן שהחלון היה פתוח (כאן או ממסך אחר) - מוחל עכשיו
+        AdminStore.followSkin();
     }
 
     function buildShell() {
